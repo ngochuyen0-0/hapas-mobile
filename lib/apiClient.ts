@@ -1,0 +1,187 @@
+import { Platform } from 'react-native';
+import { Product, AuthResponse, User, Order, Category } from '@/types/api';
+
+// Determine the base URL for API calls
+const getBaseUrl = () => {
+  // When running on emulator/simulator, we need to use the host machine's IP
+  // For production, you would use your actual API domain
+  if (__DEV__) {
+    // For Android emulator, use 10.0.2.2 to access host machine
+    // For iOS simulator, use localhost
+    return Platform.OS === 'android' || Platform.OS === "ios"
+      ? 'http://172.20.10.7:3000' 
+      : 'http://localhost:3000';
+  }
+  // In production, use your actual domain
+  return 'http://172.20.10.7:3000';
+};
+
+const BASE_URL = getBaseUrl();
+
+// Helper function to get the first image URL from image_urls
+const getFirstImageUrl = (imageUrls: string | null | undefined): string | undefined => {
+  if (!imageUrls) return undefined;
+  
+  const urls = imageUrls.startsWith("data:image") ? [imageUrls] : imageUrls.split(',');
+  const firstUrl = urls[0].trim();
+  return firstUrl || undefined;
+};
+
+// Generic API fetch function
+export const apiClient = {
+  // Fetch all products (public endpoint)
+  async getProducts(): Promise<Product[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/public/products`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch products');
+      }
+      
+      // Map image_urls to image field for mobile app compatibility
+      const products = (data.products || data || []).map((product: any) => ({
+        ...product,
+        image: product.image || getFirstImageUrl(product.image_urls)
+      }));
+      
+      return products;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+  },
+
+  // Fetch a single product by ID (public endpoint)
+  async getProductById(id: string): Promise<Product> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/public/products/${id}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch product');
+      }
+      
+      const product = data.product || data;
+      
+      // Map image_urls to image field for mobile app compatibility
+      return {
+        ...product,
+        image: product.image || getFirstImageUrl(product.image_urls)
+      };
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Fetch all categories (public endpoint)
+  async getCategories(): Promise<Category[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/public/categories`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch categories');
+      }
+      
+      return data.categories || [];
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  },
+
+  // User authentication
+  async login(email: string, password: string): Promise<AuthResponse> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
+
+  // Get user profile
+  async getProfile(token: string): Promise<User> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/customer/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch profile');
+      }
+      
+      return data.user || data;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
+    }
+  },
+
+  // Get user orders
+  async getOrders(token: string): Promise<Order[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/customer/orders`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch orders');
+      }
+      
+      return data.orders || [];
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      throw error;
+    }
+  },
+
+  // Create an order
+  async createOrder(token: string, orderData: any) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create order');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
+  },
+};
