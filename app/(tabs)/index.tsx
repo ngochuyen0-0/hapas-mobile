@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Text, ActivityIndicator, Platform, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, FlatList, Text, ActivityIndicator, Platform, ScrollView, Dimensions, TextInput } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ProductCard } from '@/components/ProductCard';
@@ -8,6 +8,7 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { apiClient } from '@/lib/apiClient';
 import { getTabBarHeight } from '@/components/CustomTabBar';
 import { Product, Category } from '@/types/api';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +17,9 @@ export default function HomeScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Mock slider data - in a real app, this would come from an API
   const sliderData = [
@@ -77,12 +81,40 @@ export default function HomeScreen() {
       ]);
     } finally {
       setLoading(false);
+      setFilteredProducts(products); // Initialize filtered products with all products
     }
   };
+
+  // Update the initial filtered products when products are loaded
+  useEffect(() => {
+    setFilteredProducts(products);
+  }, [products]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchData().then(() => setRefreshing(false));
+  };
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === '') {
+      setFilteredProducts(products);
+    } else {
+      setIsSearching(true);
+      try {
+        const searchResults = await apiClient.searchProducts(query);
+        setFilteredProducts(searchResults);
+      } catch (error) {
+        console.error('Error searching products:', error);
+        // Fallback to client-side search if API fails
+        const filtered = products.filter(product =>
+          product.name.toLowerCase().includes(query.toLowerCase())
+        );
+        setFilteredProducts(filtered);
+      } finally {
+        setIsSearching(false);
+      }
+    }
   };
 
   const renderProduct = ({ item }: { item: Product }) => (
@@ -101,12 +133,12 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <FlatList
-        data={products}
+        data={filteredProducts}
         renderItem={renderProduct}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={styles.row}
-        refreshing={refreshing}
+        refreshing={refreshing || isSearching}
         onRefresh={onRefresh}
         ListHeaderComponent={
           <View>
@@ -120,22 +152,45 @@ export default function HomeScreen() {
               </ThemedText>
             </ThemedView>
             
+            {/* Search Input */}
+            <ThemedView style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Tìm kiếm sản phẩm..."
+                value={searchQuery}
+                onChangeText={handleSearch}
+                placeholderTextColor="#999"
+              />
+              {isSearching && (
+                <View style={styles.searchLoader}>
+                  <ActivityIndicator
+                    size="small"
+                    color="#0000ff"
+                  />
+                </View>
+              )}
+            </ThemedView>
+            
             {/* Slider */}
             <ImageSlider slides={sliderData} />
             
             {/* Categories */}
             <ThemedView style={styles.section}>
               <ThemedText type="title" style={styles.sectionTitle}>Danh Mục</ThemedText>
-              <ScrollView 
-                horizontal 
+              <ScrollView
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.categoriesContainer}
               >
                 {categories.map(category => (
-                  <CategoryCard 
-                    key={category.id} 
-                    category={category} 
-                    onPress={(category) => console.log('Category pressed:', category)} 
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    onPress={(category) => {
+                      // Navigate to category screen with category ID
+                      const categoryId = typeof category === 'string' ? category : category.id;
+                      router.push({ pathname: '/(tabs)/category/[id]', params: { id: categoryId } });
+                    }}
                   />
                 ))}
               </ScrollView>
@@ -143,7 +198,9 @@ export default function HomeScreen() {
             
             {/* Products Title */}
             <ThemedView style={styles.section}>
-              <ThemedText type="title" style={styles.sectionTitle}>Sản Phẩm</ThemedText>
+              <ThemedText type="title" style={styles.sectionTitle}>
+                {searchQuery ? `Kết quả tìm kiếm cho: "${searchQuery}"` : 'Sản Phẩm'}
+              </ThemedText>
             </ThemedView>
           </View>
         }
@@ -175,6 +232,24 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'center',
     color: '#666',
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  searchLoader: {
+    position: 'absolute',
+    right: 15,
+    top: 10,
   },
   section: {
     marginVertical: 10,

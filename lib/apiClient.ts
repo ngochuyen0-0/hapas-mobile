@@ -52,6 +52,34 @@ export const apiClient = {
     }
   },
 
+  // Search products by query (public endpoint)
+  async searchProducts(query: string, categoryId?: string): Promise<Product[]> {
+    try {
+      let url = `${BASE_URL}/api/public/products/search?q=${encodeURIComponent(query)}`;
+      if (categoryId) {
+        url += `&category_id=${encodeURIComponent(categoryId)}`;
+      }
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to search products');
+      }
+      
+      // Map image_urls to image field for mobile app compatibility
+      const products = (data.products || []).map((product: any) => ({
+        ...product,
+        image: product.image || getFirstImageUrl(product.image_urls)
+      }));
+      
+      return products;
+    } catch (error) {
+      console.error('Error searching products:', error);
+      throw error;
+    }
+  },
+
   // Fetch a single product by ID (public endpoint)
   async getProductById(id: string): Promise<Product> {
     try {
@@ -88,6 +116,29 @@ export const apiClient = {
       return data.categories || [];
     } catch (error) {
       console.error('Error fetching categories:', error);
+      throw error;
+    }
+  },
+
+  // Fetch products by category ID (public endpoint)
+  async getProductsByCategory(categoryId: string): Promise<Product[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/public/products?category_id=${encodeURIComponent(categoryId)}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch products by category');
+      }
+      
+      // Map image_urls to image field for mobile app compatibility
+      const products = (data.products || []).map((product: any) => ({
+        ...product,
+        image: product.image || getFirstImageUrl(product.image_urls)
+      }));
+      
+      return products;
+    } catch (error) {
+      console.error(`Error fetching products for category ${categoryId}:`, error);
       throw error;
     }
   },
