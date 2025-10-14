@@ -15,6 +15,7 @@ export interface Product {
   created_at?: string;
   updated_at?: string;
   reviews?: Review[];
+  is_favorite?: boolean;
 }
 
 export interface Category {
