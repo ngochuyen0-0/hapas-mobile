@@ -43,7 +43,7 @@ export default function CheckoutScreen() {
   const [searchDistrict, setSearchDistrict] = useState('');
   const [searchCommune, setSearchCommune] = useState('');
   
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank' | 'card'>('cod');
   
   // Load provinces data on component mount
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function CheckoutScreen() {
         })),
         shipping_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
         total_amount: cartState.total + 9.99 + (cartState.total * 0.08),
-        payment_method: paymentMethod,
+        payment_method: paymentMethod === 'card' ? 'credit_debit' : paymentMethod,
       };
 
       // Create order
@@ -142,7 +142,7 @@ export default function CheckoutScreen() {
           orderId: response.order?.id || 'ORD-' + Date.now(),
           orderDate: new Date().toLocaleDateString('vi-VN'),
           totalAmount: orderData.total_amount.toFixed(2),
-          paymentMethod: paymentMethod,
+          paymentMethod: paymentMethod === 'card' ? 'Thẻ Tín Dụng/Ghi Nợ' : paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản',
           shippingInfo: JSON.stringify({
             fullName: shippingInfo.fullName,
             phoneNumber: shippingInfo.phoneNumber,
@@ -407,28 +407,63 @@ export default function CheckoutScreen() {
       <ThemedView style={styles.section}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>Phương Thức Thanh Toán</ThemedText>
         <ThemedView style={styles.paymentOptions}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.paymentOption, paymentMethod === 'cod' && styles.selectedPaymentOption]}
             onPress={() => setPaymentMethod('cod')}
           >
-            <ThemedText style={styles.paymentOptionText}>Thanh Toán Khi Nhận Hàng (COD)</ThemedText>
+            <View style={styles.paymentOptionContent}>
+              <Text style={styles.paymentOptionIcon}>🚚</Text>
+              <ThemedText style={styles.paymentOptionText}>Thanh Toán Khi Nhận Hàng (COD)</ThemedText>
+              <View style={[styles.paymentSelectionIndicator, paymentMethod === 'cod' && styles.paymentSelectionIndicatorSelected]}>
+                {paymentMethod === 'cod' && <View style={styles.paymentSelectionIndicatorInner} />}
+              </View>
+            </View>
           </TouchableOpacity>
           
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.paymentOption, paymentMethod === 'bank' && styles.selectedPaymentOption]}
             onPress={() => setPaymentMethod('bank')}
           >
-            <ThemedText style={styles.paymentOptionText}>Chuyển Khoản Ngân Hàng</ThemedText>
+            <View style={styles.paymentOptionContent}>
+              <Text style={styles.paymentOptionIcon}>🏦</Text>
+              <ThemedText style={styles.paymentOptionText}>Chuyển Khoản Ngân Hàng</ThemedText>
+              <View style={[styles.paymentSelectionIndicator, paymentMethod === 'bank' && styles.paymentSelectionIndicatorSelected]}>
+                {paymentMethod === 'bank' && <View style={styles.paymentSelectionIndicatorInner} />}
+              </View>
+            </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.paymentOption, paymentMethod === 'card' && styles.selectedPaymentOption]}
+            onPress={() => setPaymentMethod('card')}
+          >
+            <View style={styles.paymentOptionContent}>
+              <Text style={styles.paymentOptionIcon}>💳</Text>
+              <ThemedText style={styles.paymentOptionText}>Thẻ Tín Dụng/Ghi Nợ</ThemedText>
+              <View style={[styles.paymentSelectionIndicator, paymentMethod === 'card' && styles.paymentSelectionIndicatorSelected]}>
+                {paymentMethod === 'card' && <View style={styles.paymentSelectionIndicatorInner} />}
+              </View>
+            </View>
           </TouchableOpacity>
         </ThemedView>
         
-        {paymentMethod === 'bank' && (
+        {(paymentMethod === 'bank' || paymentMethod === 'card') && (
           <ThemedView style={styles.bankInfo}>
-            <ThemedText style={styles.bankInfoTitle}>Thông Tin Chuyển Khoản</ThemedText>
-            <ThemedText>Ngân hàng: Vietcombank</ThemedText>
-            <ThemedText>Số tài khoản: 1234 5678 9012</ThemedText>
-            <ThemedText>Chủ tài khoản: CÔNG TY HAPAS</ThemedText>
-            <ThemedText>Nội dung: HAPAS_{shippingInfo.fullName || 'Mã đơn hàng'}</ThemedText>
+            {paymentMethod === 'bank' ? (
+              <>
+                <ThemedText style={styles.bankInfoTitle}>Thông Tin Chuyển Khoản</ThemedText>
+                <ThemedText>Ngân hàng: Vietcombank</ThemedText>
+                <ThemedText>Số tài khoản: 1234 5678 9012</ThemedText>
+                <ThemedText>Chủ tài khoản: CÔNG TY HAPAS</ThemedText>
+                <ThemedText>Nội dung: HAPAS_{shippingInfo.fullName || 'Mã đơn hàng'}</ThemedText>
+              </>
+            ) : (
+              <>
+                <ThemedText style={styles.bankInfoTitle}>Thông Tin Thẻ</ThemedText>
+                <ThemedText>Nhập thông tin thẻ của bạn</ThemedText>
+                <ThemedText>Số thẻ, ngày hết hạn, CVV</ThemedText>
+              </>
+            )}
           </ThemedView>
         )}
       </ThemedView>
@@ -511,16 +546,28 @@ const styles = StyleSheet.create({
     padding: 15,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 10,
+    borderRadius: 12,
+    marginBottom: 12,
     backgroundColor: '#f9f9f9',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   selectedPaymentOption: {
     borderColor: '#007AFF',
     backgroundColor: '#e6f0ff',
+    borderWidth: 2,
   },
   paymentOptionText: {
     fontSize: 16,
+    flex: 1,
+  },
+  paymentOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   bankInfo: {
     padding: 15,
@@ -584,5 +631,29 @@ const styles = StyleSheet.create({
   },
   modalCloseButton: {
     marginTop: 10,
+  },
+  paymentOptionIcon: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  paymentSelectionIndicator: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#ccc',
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentSelectionIndicatorSelected: {
+    backgroundColor: '#07AFF',
+    borderColor: '#007AFF',
+  },
+  paymentSelectionIndicatorInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'white',
   },
 });
