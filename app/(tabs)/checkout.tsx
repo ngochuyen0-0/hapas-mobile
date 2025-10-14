@@ -1,7 +1,7 @@
-import { StyleSheet, View, Text, Pressable, TextInput, Platform, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Pressable, TextInput, Platform, ScrollView, Alert, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
 import { useCart } from '@/context/CartContext';
@@ -12,18 +12,89 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CheckoutScreen() {
   const router = useRouter();
-  const { state: cartState, clearCart } = useCart();
+ const { state: cartState, clearCart } = useCart();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
+    phoneNumber: '',
     address: '',
-    city: '',
+    province: '',
+    district: '',
+    commune: '',
     zipCode: '',
-    country: 'Việt Nam',
+    note: '',
   });
   
+  type Location = {
+    code: string;
+    name: string;
+    districts?: Location[];
+    wards?: Location[];
+  };
+  
+  const [provinces, setProvinces] = useState<Location[]>([]);
+  const [districts, setDistricts] = useState<Location[]>([]);
+  const [communes, setCommunes] = useState<Location[]>([]);
+  const [showProvinceModal, setShowProvinceModal] = useState(false);
+  const [showDistrictModal, setShowDistrictModal] = useState(false);
+  const [showCommuneModal, setShowCommuneModal] = useState(false);
+  const [searchProvince, setSearchProvince] = useState('');
+  const [searchDistrict, setSearchDistrict] = useState('');
+  const [searchCommune, setSearchCommune] = useState('');
+  
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank'>('cod');
+  
+  // Load provinces data on component mount
+  useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        const provincesData = require('../../data/vietnam-provinces.json');
+        setProvinces(provincesData.provinces);
+      } catch (error) {
+        console.error('Error loading provinces:', error);
+      }
+    };
+    
+    loadProvinces();
+  }, []);
+  
+  // Function to handle province selection
+  const handleSelectProvince = (province: Location) => {
+    setShippingInfo({ ...shippingInfo, province: province.name, district: '', commune: '' });
+    setDistricts(province.districts || []);
+    setCommunes([]);
+    setShowProvinceModal(false);
+    setSearchProvince('');
+  };
+  
+  // Function to handle district selection
+  const handleSelectDistrict = (district: Location) => {
+    setShippingInfo({ ...shippingInfo, district: district.name, commune: '' });
+    setCommunes(district.wards || []);
+    setShowDistrictModal(false);
+    setSearchDistrict('');
+  };
+  
+ // Function to handle commune selection
+  const handleSelectCommune = (commune: Location) => {
+    setShippingInfo({ ...shippingInfo, commune: commune.name });
+    setShowCommuneModal(false);
+    setSearchCommune('');
+  };
+  
+  // Filter functions for search
+ const filteredProvinces = provinces.filter((province: Location) =>
+    province.name.toLowerCase().includes(searchProvince.toLowerCase())
+  );
+  
+  const filteredDistricts = districts.filter((district: Location) =>
+    district.name.toLowerCase().includes(searchDistrict.toLowerCase())
+  );
+  
+  const filteredCommunes = communes.filter((commune: Location) =>
+    commune.name.toLowerCase().includes(searchCommune.toLowerCase())
+  );
 
   const handleInputChange = (field: string, value: string) => {
     setShippingInfo({ ...shippingInfo, [field]: value });
@@ -31,7 +102,7 @@ export default function CheckoutScreen() {
 
   const handlePlaceOrder = async () => {
     // Validate required fields
-    if (!shippingInfo.fullName || !shippingInfo.address || !shippingInfo.city) {
+    if (!shippingInfo.fullName || !shippingInfo.phoneNumber || !shippingInfo.address || !shippingInfo.province || !shippingInfo.district || !shippingInfo.commune) {
       Alert.alert('Thông báo', 'Vui lòng điền đầy đủ thông tin vận chuyển');
       return;
     }
@@ -53,7 +124,7 @@ export default function CheckoutScreen() {
           quantity: item.quantity,
           unit_price: item.price, // Changed from 'price' to 'unit_price'
         })),
-        shipping_address: `${shippingInfo.fullName}, ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.zipCode}, ${shippingInfo.country}`,
+        shipping_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
         total_amount: cartState.total + 9.99 + (cartState.total * 0.08),
         payment_method: paymentMethod,
       };
@@ -72,6 +143,15 @@ export default function CheckoutScreen() {
           orderDate: new Date().toLocaleDateString('vi-VN'),
           totalAmount: orderData.total_amount.toFixed(2),
           paymentMethod: paymentMethod,
+          shippingInfo: JSON.stringify({
+            fullName: shippingInfo.fullName,
+            phoneNumber: shippingInfo.phoneNumber,
+            address: shippingInfo.address,
+            province: shippingInfo.province,
+            district: shippingInfo.district,
+            commune: shippingInfo.commune,
+            note: shippingInfo.note,
+          }),
         },
       });
     } catch (error) {
@@ -83,7 +163,7 @@ export default function CheckoutScreen() {
   };
 
   const subtotal = cartState.total;
-  const shipping = subtotal > 0 ? 9.99 : 0;
+  const shipping = 0; // Free shipping
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
@@ -94,7 +174,7 @@ export default function CheckoutScreen() {
       <ThemedView style={styles.section}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>Thông Tin Vận Chuyển</ThemedText>
         <ThemedView style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Họ Và Tên</ThemedText>
+          <ThemedText style={styles.label}>Họ Và Tên *</ThemedText>
           <TextInput
             style={styles.input}
             value={shippingInfo.fullName}
@@ -104,7 +184,18 @@ export default function CheckoutScreen() {
         </ThemedView>
         
         <ThemedView style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Địa Chỉ</ThemedText>
+          <ThemedText style={styles.label}>Số Điện Thoại *</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={shippingInfo.phoneNumber}
+            onChangeText={(value) => handleInputChange('phoneNumber', value)}
+            placeholder="Nhập số điện thoại"
+            keyboardType="phone-pad"
+          />
+        </ThemedView>
+        
+        <ThemedView style={styles.inputGroup}>
+          <ThemedText style={styles.label}>Địa Chỉ *</ThemedText>
           <TextInput
             style={styles.input}
             value={shippingInfo.address}
@@ -115,36 +206,202 @@ export default function CheckoutScreen() {
         
         <ThemedView style={styles.row}>
           <ThemedView style={[styles.inputGroup, styles.flexOne]}>
-            <ThemedText style={styles.label}>Thành Phố</ThemedText>
-            <TextInput
+            <ThemedText style={styles.label}>Tỉnh/Thành Phố *</ThemedText>
+            <Pressable
               style={styles.input}
-              value={shippingInfo.city}
-              onChangeText={(value) => handleInputChange('city', value)}
-              placeholder="Nhập thành phố"
-            />
+              onPress={() => setShowProvinceModal(true)}
+            >
+              <ThemedText style={{ color: shippingInfo.province ? '#000' : '#999' }}>
+                {shippingInfo.province || 'Chọn tỉnh/thành phố'}
+              </ThemedText>
+            </Pressable>
           </ThemedView>
           
           <ThemedView style={[styles.inputGroup, styles.flexOne, styles.marginLeft]}>
-            <ThemedText style={styles.label}>Mã ZIP</ThemedText>
+            <ThemedText style={styles.label}>Quận/Huyện *</ThemedText>
+            <Pressable
+              style={styles.input}
+              onPress={() => {
+                if (!shippingInfo.province) {
+                  Alert.alert('Thông báo', 'Vui lòng chọn tỉnh/thành phố trước');
+                  return;
+                }
+                setShowDistrictModal(true);
+              }}
+            >
+              <ThemedText style={{ color: shippingInfo.district ? '#000' : '#99' }}>
+                {shippingInfo.district || 'Chọn quận/huyện'}
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+        </ThemedView>
+        
+        <ThemedView style={styles.row}>
+          <ThemedView style={[styles.inputGroup, styles.flexOne]}>
+            <ThemedText style={styles.label}>Phường/Xã *</ThemedText>
+            <Pressable
+              style={styles.input}
+              onPress={() => {
+                if (!shippingInfo.district) {
+                  Alert.alert('Thông báo', 'Vui lòng chọn quận/huyện trước');
+                  return;
+                }
+                setShowCommuneModal(true);
+              }}
+            >
+              <ThemedText style={{ color: shippingInfo.commune ? '#000' : '#999' }}>
+                {shippingInfo.commune || 'Chọn phường/xã'}
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+          
+          <ThemedView style={[styles.inputGroup, styles.flexOne, styles.marginLeft]}>
+            <ThemedText style={styles.label}>Mã Bưu Chính</ThemedText>
             <TextInput
               style={styles.input}
               value={shippingInfo.zipCode}
               onChangeText={(value) => handleInputChange('zipCode', value)}
-              placeholder="Nhập mã ZIP"
+              placeholder="Nhập mã bưu chính"
               keyboardType="numeric"
             />
           </ThemedView>
         </ThemedView>
         
         <ThemedView style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Quốc Gia</ThemedText>
+          <ThemedText style={styles.label}>Ghi Chú Cho Đơn Hàng</ThemedText>
           <TextInput
             style={styles.input}
-            value={shippingInfo.country}
-            onChangeText={(value) => handleInputChange('country', value)}
-            placeholder="Nhập quốc gia"
+            value={shippingInfo.note}
+            onChangeText={(value) => handleInputChange('note', value)}
+            placeholder="Ghi chú cho đơn hàng"
+            multiline
+            numberOfLines={3}
           />
         </ThemedView>
+        
+        {/* Province Selection Modal */}
+        <Modal
+          visible={showProvinceModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowProvinceModal(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <ThemedText type="subtitle" style={styles.modalTitle}>Chọn Tỉnh/Thành Phố</ThemedText>
+              
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Tìm kiếm tỉnh/thành phố..."
+                value={searchProvince}
+                onChangeText={setSearchProvince}
+              />
+              
+              <FlatList
+                data={filteredProvinces}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <Pressable
+                    style={styles.modalItem}
+                    onPress={() => handleSelectProvince(item)}
+                  >
+                    <ThemedText>{item.name}</ThemedText>
+                  </Pressable>
+                )}
+                style={styles.modalList}
+              />
+              
+              <Button
+                title="Đóng"
+                onPress={() => setShowProvinceModal(false)}
+                style={styles.modalCloseButton}
+              />
+            </View>
+          </View>
+        </Modal>
+        
+        {/* District Selection Modal */}
+        <Modal
+          visible={showDistrictModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowDistrictModal(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <ThemedText type="subtitle" style={styles.modalTitle}>Chọn Quận/Huyện</ThemedText>
+              
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Tìm kiếm quận/huyện..."
+                value={searchDistrict}
+                onChangeText={setSearchDistrict}
+              />
+              
+              <FlatList
+                data={filteredDistricts}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <Pressable
+                    style={styles.modalItem}
+                    onPress={() => handleSelectDistrict(item)}
+                  >
+                    <ThemedText>{item.name}</ThemedText>
+                  </Pressable>
+                )}
+                style={styles.modalList}
+              />
+              
+              <Button
+                title="Đóng"
+                onPress={() => setShowDistrictModal(false)}
+                style={styles.modalCloseButton}
+              />
+            </View>
+          </View>
+        </Modal>
+        
+        {/* Commune Selection Modal */}
+        <Modal
+          visible={showCommuneModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowCommuneModal(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <ThemedText type="subtitle" style={styles.modalTitle}>Chọn Phường/Xã</ThemedText>
+              
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Tìm kiếm phường/xã..."
+                value={searchCommune}
+                onChangeText={setSearchCommune}
+              />
+              
+              <FlatList
+                data={filteredCommunes}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <Pressable
+                    style={styles.modalItem}
+                    onPress={() => handleSelectCommune(item)}
+                  >
+                    <ThemedText>{item.name}</ThemedText>
+                  </Pressable>
+                )}
+                style={styles.modalList}
+              />
+              
+              <Button
+                title="Đóng"
+                onPress={() => setShowCommuneModal(false)}
+                style={styles.modalCloseButton}
+              />
+            </View>
+          </View>
+        </Modal>
+        
       </ThemedView>
       
       <ThemedView style={styles.section}>
@@ -177,22 +434,22 @@ export default function CheckoutScreen() {
       </ThemedView>
       
       <ThemedView style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>Tóm Tắt Đơn Hàng</ThemedText>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>Đơn Hàng Của Bạn </ThemedText>
         <ThemedView style={styles.summaryRow}>
           <ThemedText>Tạm Tính</ThemedText>
-          <ThemedText>${subtotal.toFixed(2)}</ThemedText>
+          <ThemedText>{subtotal.toLocaleString('vi-VN')}₫</ThemedText>
         </ThemedView>
         <ThemedView style={styles.summaryRow}>
           <ThemedText>Vận Chuyển</ThemedText>
-          <ThemedText>${shipping.toFixed(2)}</ThemedText>
+          <ThemedText>Miễn phí</ThemedText>
         </ThemedView>
         <ThemedView style={styles.summaryRow}>
           <ThemedText>Thuế</ThemedText>
-          <ThemedText>${tax.toFixed(2)}</ThemedText>
+          <ThemedText>{tax.toLocaleString('vi-VN')}₫</ThemedText>
         </ThemedView>
         <ThemedView style={[styles.summaryRow, styles.totalRow]}>
           <ThemedText type="defaultSemiBold">Tổng Cộng</ThemedText>
-          <ThemedText type="defaultSemiBold">${total.toFixed(2)}</ThemedText>
+          <ThemedText type="defaultSemiBold">{total.toLocaleString('vi-VN')}₫</ThemedText>
         </ThemedView>
       </ThemedView>
       
@@ -290,5 +547,42 @@ const styles = StyleSheet.create({
   },
   placeOrderButton: {
     marginTop: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '70%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalTitle: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  modalItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  modalList: {
+    maxHeight: 300,
+    marginBottom: 15,
+  },
+  modalCloseButton: {
+    marginTop: 10,
   },
 });

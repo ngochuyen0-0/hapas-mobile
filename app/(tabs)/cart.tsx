@@ -1,17 +1,26 @@
-import { StyleSheet, View, Text, Pressable, Platform } from 'react-native';
+import { StyleSheet, View, Text, Pressable, Platform, Image } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
 import { useCart } from '@/context/CartContext';
 import { getTabBarHeight } from '@/components/CustomTabBar';
 
+// Hàm định dạng tiền Việt Nam
+const formatVND = (amount: number): string => {
+  return amount.toLocaleString('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0
+  });
+};
+
 export default function CartScreen() {
   const router = useRouter();
   const { state: cartState, updateQuantity, removeFromCart } = useCart();
   
   const subtotal = cartState.total;
-  const shipping = subtotal > 0 ? 9.99 : 0;
-  const tax = subtotal * 0.08;
+  const shipping = 0; // Free shipping
+  const tax = Math.round(subtotal * 0.08); // Round tax to whole number
   const total = subtotal + shipping + tax;
 
   const handleCheckout = () => {
@@ -31,18 +40,20 @@ export default function CartScreen() {
           <ThemedView style={styles.itemsContainer}>
             {cartState.items.map(item => (
               <ThemedView key={item.id} style={styles.cartItem}>
-                {item.image ? (
-                  <View style={styles.itemImageContainer}>
-                    <Text style={styles.itemImagePlaceholder}>Image</Text>
-                  </View>
-                ) : (
-                  <View style={styles.itemImageContainer}>
+                <View style={styles.itemImageContainer}>
+                  {item.image ? (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.itemImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
                     <Text style={styles.itemImagePlaceholder}>No Image</Text>
-                  </View>
-                )}
+                  )}
+                </View>
                 <ThemedView style={styles.itemDetails}>
                   <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-                  <ThemedText style={styles.itemPrice}>{typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2)}</ThemedText>
+                  <ThemedText style={styles.itemPrice}>{formatVND(typeof item.price === 'number' ? item.price : parseFloat(item.price))}</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.quantityContainer}>
                   <Pressable 
@@ -60,8 +71,8 @@ export default function CartScreen() {
                   </Pressable>
                 </ThemedView>
                 <ThemedView style={styles.itemActions}>
-                  <ThemedText style={styles.itemTotal}>{((typeof item.price === 'number' ? item.price : parseFloat(item.price)) * item.quantity).toFixed(2)}</ThemedText>
-                  <Pressable 
+                  <ThemedText style={styles.itemTotal}>{formatVND(((typeof item.price === 'number' ? item.price : parseFloat(item.price)) * item.quantity))}</ThemedText>
+                  <Pressable
                     style={styles.removeButton}
                     onPress={() => removeFromCart(item.id)}
                   >
@@ -75,19 +86,19 @@ export default function CartScreen() {
           <ThemedView style={[styles.summaryContainer, { paddingBottom: getTabBarHeight() + 20 }]}>
             <ThemedView style={styles.summaryRow}>
               <ThemedText>Tạm tính</ThemedText>
-              <ThemedText>{subtotal.toFixed(2)}</ThemedText>
+              <ThemedText>{formatVND(subtotal)}</ThemedText>
             </ThemedView>
             <ThemedView style={styles.summaryRow}>
               <ThemedText>Phí vận chuyển</ThemedText>
-              <ThemedText>{shipping.toFixed(2)}</ThemedText>
+              <ThemedText>Miễn Phí</ThemedText>
             </ThemedView>
             <ThemedView style={styles.summaryRow}>
               <ThemedText>Thuế</ThemedText>
-              <ThemedText>{tax.toFixed(2)}</ThemedText>
+              <ThemedText>{formatVND(tax)}</ThemedText>
             </ThemedView>
             <ThemedView style={[styles.summaryRow, styles.totalRow]}>
               <ThemedText type="defaultSemiBold">Tổng cộng</ThemedText>
-              <ThemedText type="defaultSemiBold">{total.toFixed(2)}</ThemedText>
+              <ThemedText type="defaultSemiBold">{formatVND(total)}</ThemedText>
             </ThemedView>
             
             <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
@@ -130,6 +141,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  itemImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
   },
   itemImagePlaceholder: {
     fontSize: 10,
