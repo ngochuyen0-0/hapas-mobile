@@ -3,10 +3,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { apiClient } from '@/lib/apiClient';
 import { getTabBarHeight } from '@/components/CustomTabBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from '@/context/FavoritesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import React from 'react';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -26,6 +30,13 @@ export default function ProfileScreen() {
     fetchProfileData();
   }, []);
 
+  // Refetch profile data when the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfileData();
+    }, [])
+  );
+
   const fetchProfileData = async () => {
     try {
       setLoading(true);
@@ -34,13 +45,16 @@ export default function ProfileScreen() {
       // const userData = await apiClient.getProfile(token);
       // const ordersData = await apiClient.getOrders(token);
       
-      // Mock data for now until we implement authentication
-      setUser({
+      // Load user data from storage, fallback to mock data
+      const savedData = await AsyncStorage.getItem('userProfile');
+      const userData = savedData ? JSON.parse(savedData) : {
         name: 'Nguyễn Ngọc Huyền',
         email: 'nguyenngochuyen@example.com',
         phone: '+84 123 456 789',
         address: '123 Đường ABC, Quận XYZ, TP. HCM',
-      });
+      };
+      
+      setUser(userData);
       
       setOrders([
         { id: 'ORD-001', date: '2023-06-15', total: 129000, status: 'Đã Giao' },
@@ -65,7 +79,7 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Chức năng đang được phát triển', 'Chức năng chỉnh sửa profile sẽ được cập nhật trong phiên bản tiếp theo.');
+    router.push('/(tabs)/profile/edit-profile');
   };
 
   const handleNavigateToFavorites = () => {
@@ -205,6 +219,52 @@ export default function ProfileScreen() {
         {getOrdersByStatus(activeOrderStatus).length === 0 && (
           <ThemedText style={styles.noOrdersText}>Không có đơn hàng nào</ThemedText>
         )}
+      </ThemedView>
+      
+      {/* Account Settings Section */}
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>Cài Đặt Tài Khoản</ThemedText>
+        <View style={styles.settingsContainer}>
+          <Pressable style={styles.settingsItem} onPress={() => router.push('/(tabs)/profile/edit-profile')}>
+            <View style={styles.settingsIcon}>
+              <Ionicons name="person" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>Chỉnh Sửa Thông Tin Cá Nhân</ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+          
+          <Pressable style={styles.settingsItem} onPress={() => router.push('/(tabs)/profile/shipping-address')}>
+            <View style={styles.settingsIcon}>
+              <Ionicons name="location" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>Địa Chỉ Giao Hàng</ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+          
+          <Pressable style={styles.settingsItem} onPress={() => router.push('/(tabs)/profile/payment-methods')}>
+            <View style={styles.settingsIcon}>
+              <Ionicons name="card" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>Phương Thức Thanh Toán</ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+          
+          <Pressable style={styles.settingsItem} onPress={() => Alert.alert('Trợ giúp & Hỗ trợ', 'Hỗ trợ khách hàng 24/7. Vui lòng liên hệ qua email hoặc số điện thoại.')}>
+            <View style={styles.settingsIcon}>
+              <Ionicons name="help-circle" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>Trợ Giúp & Hỗ Trợ</ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+          
+          <Pressable style={styles.settingsItem} onPress={() => Alert.alert('Trò chuyện với Hapas', 'Hiện tại tính năng trò chuyện trực tiếp chưa khả dụng. Vui lòng liên hệ qua email hoặc số điện thoại.')}>
+            <View style={styles.settingsIcon}>
+              <Ionicons name="chatbubbles" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>Trò Chuyện Cùng Hapas</ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+        </View>
       </ThemedView>
       
       <Pressable style={[styles.logoutButton, { marginBottom: getTabBarHeight() + 20 }]} onPress={handleLogout}>
@@ -379,6 +439,30 @@ const styles = StyleSheet.create({
     color: '#999',
     paddingVertical: 20,
     fontStyle: 'italic',
+  },
+  settingsContainer: {
+    flexDirection: 'column',
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f8f8f8',
+  },
+  settingsIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  settingsText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
   },
   logoutButton: {
     alignSelf: 'center',
