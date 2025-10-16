@@ -19,7 +19,12 @@ export function ProductCard({ product }: { product: Product }) {
     if (currentIsFavorite) {
       removeFavorite(product.id);
     } else {
-      addFavorite(product.id);
+      addFavorite({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_urls ? (typeof product.image_urls === 'string' ? product.image_urls.split(',')[0] : product.image_urls[0]) : product.image || ''
+      });
     }
  };
 
