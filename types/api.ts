@@ -36,8 +36,8 @@ export interface Review {
 
 export interface User {
   id: string;
-  name: string;
   email: string;
+  full_name: string;
   phone?: string;
   address?: string;
   created_at?: string;
@@ -71,10 +71,10 @@ export interface CartItem {
 }
 
 export interface AuthResponse {
+  message?: string;
   success: boolean;
   token?: string;
   user?: User;
-  message?: string;
 }
 
 export interface ApiResponse<T> {

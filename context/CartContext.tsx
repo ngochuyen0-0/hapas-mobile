@@ -39,50 +39,63 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items,
         total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
       };
-    
+
     case 'ADD_TO_CART':
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find(
+        (item) => item.id === action.payload.id,
+      );
       let updatedItems;
-      
+
       if (existingItem) {
-        updatedItems = state.items.map(item =>
+        updatedItems = state.items.map((item) =>
           item.id === action.payload.id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
+            : item,
         );
       } else {
         updatedItems = [...state.items, action.payload];
       }
-      
+
       return {
         ...state,
         items: updatedItems,
-        total: updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        total: updatedItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        ),
       };
-    
+
     case 'REMOVE_FROM_CART':
-      const filteredItems = state.items.filter(item => item.id !== action.payload);
+      const filteredItems = state.items.filter(
+        (item) => item.id !== action.payload,
+      );
       return {
         ...state,
         items: filteredItems,
-        total: filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        total: filteredItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        ),
       };
-    
+
     case 'UPDATE_QUANTITY':
-      const updatedQuantityItems = state.items.map(item =>
+      const updatedQuantityItems = state.items.map((item) =>
         item.id === action.payload.id
           ? { ...item, quantity: Math.max(1, action.payload.quantity) }
-          : item
+          : item,
       );
       return {
         ...state,
         items: updatedQuantityItems,
-        total: updatedQuantityItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        total: updatedQuantityItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        ),
       };
-    
+
     case 'CLEAR_CART':
       return initialState;
-    
+
     default:
       return state;
   }
@@ -98,7 +111,9 @@ const CartContext = createContext<{
   clearCart: () => void;
 } | null>(null);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, dispatch] = useReducer(cartReducer, initialState, () => {
     // We'll load the cart data asynchronously in an effect below
     return initialState;

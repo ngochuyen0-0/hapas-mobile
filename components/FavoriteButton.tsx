@@ -9,18 +9,18 @@ interface FavoriteButtonProps {
   color?: string;
 }
 
-export function FavoriteButton({ 
-  isFavorite, 
-  onPress, 
+export function FavoriteButton({
+  isFavorite,
+  onPress,
   size = 24,
-  color = '#ff4757'
+  color = '#ff4757',
 }: FavoriteButtonProps) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Ionicons 
-        name={isFavorite ? 'heart' : 'heart-outline'} 
-        size={size} 
-        color={isFavorite ? color : '#ccc'} 
+      <Ionicons
+        name={isFavorite ? 'heart' : 'heart-outline'}
+        size={size}
+        color={isFavorite ? color : '#ccc'}
       />
     </TouchableOpacity>
   );

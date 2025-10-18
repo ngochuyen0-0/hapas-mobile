@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, FlatList, Pressable, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState, useEffect } from 'react';
@@ -10,9 +17,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 
 export default function ShippingAddressScreen() {
- const router = useRouter();
+  const router = useRouter();
   const [addresses, setAddresses] = useState<any[]>([]);
-  
+
   // useEffect(() => {
   //   loadAddresses();
   // }, []);
@@ -22,7 +29,7 @@ export default function ShippingAddressScreen() {
     React.useCallback(() => {
       console.log('useFocusEffect called - reloading addresses');
       loadAddresses();
-    }, [])
+    }, []),
   );
 
   const loadAddresses = async () => {
@@ -31,7 +38,7 @@ export default function ShippingAddressScreen() {
       console.log('Loading addresses from storage...');
       const savedAddresses = await AsyncStorage.getItem('shippingAddresses');
       console.log('Raw saved addresses from storage:', savedAddresses);
-      
+
       if (savedAddresses) {
         const parsedAddresses = JSON.parse(savedAddresses);
         console.log('Loaded addresses from storage:', parsedAddresses);
@@ -57,53 +64,75 @@ export default function ShippingAddressScreen() {
         onPress: async () => {
           try {
             console.log('User confirmed deletion for address ID:', id);
-            
+
             // Use functional update to ensure we have the latest addresses
-            setAddresses(prevAddresses => {
+            setAddresses((prevAddresses) => {
               console.log('Current addresses (from state):', prevAddresses);
-              
-              const updatedAddresses = prevAddresses.filter(addr => addr.id !== id);
-              console.log('Updated addresses after deletion:', updatedAddresses);
-              
+
+              const updatedAddresses = prevAddresses.filter(
+                (addr) => addr.id !== id,
+              );
+              console.log(
+                'Updated addresses after deletion:',
+                updatedAddresses,
+              );
+
               // If the deleted address was default and there are other addresses, set the first as default
-              if (prevAddresses.find(addr => addr.id === id)?.isDefault && updatedAddresses.length > 0) {
+              if (
+                prevAddresses.find((addr) => addr.id === id)?.isDefault &&
+                updatedAddresses.length > 0
+              ) {
                 updatedAddresses[0].isDefault = true;
-                console.log('Set first address as default:', updatedAddresses[0]);
+                console.log(
+                  'Set first address as default:',
+                  updatedAddresses[0],
+                );
               }
-              
+
               // Save to storage
-              AsyncStorage.setItem('shippingAddresses', JSON.stringify(updatedAddresses))
+              AsyncStorage.setItem(
+                'shippingAddresses',
+                JSON.stringify(updatedAddresses),
+              )
                 .then(() => {
                   console.log('Saved updated addresses to storage');
-                  
+
                   // Verify that the data was actually saved
                   return AsyncStorage.getItem('shippingAddresses');
                 })
-                .then(verifySaved => {
-                  console.log('Verification - Saved data in storage:', verifySaved);
-                  
+                .then((verifySaved) => {
+                  console.log(
+                    'Verification - Saved data in storage:',
+                    verifySaved,
+                  );
+
                   Alert.alert('Thành công', 'Địa chỉ đã được xóa thành công!', [
-                    { text: 'OK' }
+                    { text: 'OK' },
                   ]);
                 })
-                .catch(error => {
+                .catch((error) => {
                   console.error('Error saving addresses:', error);
-                  Alert.alert('Lỗi', 'Không thể lưu địa chỉ. Vui lòng thử lại sau.');
+                  Alert.alert(
+                    'Lỗi',
+                    'Không thể lưu địa chỉ. Vui lòng thử lại sau.',
+                  );
                 });
-              
+
               return updatedAddresses;
             });
           } catch (error) {
             console.error('Error deleting address:', error);
             Alert.alert('Lỗi', 'Không thể xóa địa chỉ. Vui lòng thử lại sau.');
           }
-        }
-      }
+        },
+      },
     ]);
   };
 
   const renderAddressItem = ({ item }: { item: any }) => (
-    <ThemedView style={[styles.addressItem, item.isDefault && styles.defaultAddress]}>
+    <ThemedView
+      style={[styles.addressItem, item.isDefault && styles.defaultAddress]}
+    >
       <View style={styles.addressHeader}>
         <ThemedText style={styles.addressName}>{item.name}</ThemedText>
         {item.isDefault && (
@@ -113,13 +142,23 @@ export default function ShippingAddressScreen() {
       <ThemedText style={styles.addressPhone}>{item.phone}</ThemedText>
       <ThemedText style={styles.addressText}>{item.address}</ThemedText>
       <View style={styles.addressActions}>
-        <Pressable style={styles.editButton} onPress={() => router.push(`/(tabs)/profile/edit-shipping-address?addressId=${item.id}`)}>
+        <Pressable
+          style={styles.editButton}
+          onPress={() =>
+            router.push(
+              `/(tabs)/profile/edit-shipping-address?addressId=${item.id}`,
+            )
+          }
+        >
           <ThemedText style={styles.editButtonText}>Sửa</ThemedText>
         </Pressable>
-        <Pressable style={styles.deleteButton} onPress={() => {
-          console.log('Delete button pressed for address ID:', item.id);
-          deleteAddress(item.id);
-        }}>
+        <Pressable
+          style={styles.deleteButton}
+          onPress={() => {
+            console.log('Delete button pressed for address ID:', item.id);
+            deleteAddress(item.id);
+          }}
+        >
           <ThemedText style={styles.deleteButtonText}>Xóa</ThemedText>
         </Pressable>
       </View>
@@ -129,12 +168,17 @@ export default function ShippingAddressScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push('/(tabs)/profile')}
+        >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Địa Chỉ Giao Hàng</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Địa Chỉ Giao Hàng
+        </ThemedText>
       </View>
-      
+
       <ThemedView style={styles.content}>
         {addresses.length > 0 ? (
           <FlatList
@@ -145,12 +189,19 @@ export default function ShippingAddressScreen() {
           />
         ) : (
           <ThemedView style={styles.emptyContainer}>
-            <ThemedText style={styles.emptyText}>Bạn chưa có địa chỉ giao hàng nào</ThemedText>
-            <ThemedText style={styles.emptySubText}>Hãy thêm địa chỉ mới để bắt đầu</ThemedText>
+            <ThemedText style={styles.emptyText}>
+              Bạn chưa có địa chỉ giao hàng nào
+            </ThemedText>
+            <ThemedText style={styles.emptySubText}>
+              Hãy thêm địa chỉ mới để bắt đầu
+            </ThemedText>
           </ThemedView>
         )}
-        
-        <Pressable style={styles.addButton} onPress={() => router.push('/(tabs)/profile/add-shipping-address')}>
+
+        <Pressable
+          style={styles.addButton}
+          onPress={() => router.push('/(tabs)/profile/add-shipping-address')}
+        >
           <Ionicons name="add" size={24} color="#fff" />
           <ThemedText style={styles.addButtonText}>Thêm Địa Chỉ Mới</ThemedText>
         </Pressable>
@@ -160,7 +211,7 @@ export default function ShippingAddressScreen() {
 }
 
 const styles = StyleSheet.create({
- container: {
+  container: {
     flex: 1,
     padding: 20,
     backgroundColor: '#f9f9f9',
@@ -170,7 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
- backButton: {
+  backButton: {
     padding: 5,
     marginRight: 15,
   },
@@ -180,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
- },
+  },
   content: {
     flex: 1,
   },
@@ -212,7 +263,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
- },
+  },
   defaultTag: {
     fontSize: 12,
     color: '#6200ee',

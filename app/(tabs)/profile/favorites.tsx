@@ -1,4 +1,12 @@
-import { StyleSheet, View, Text, FlatList, Pressable, Alert, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Alert,
+  Image,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -20,14 +28,19 @@ export default function FavoritesScreen() {
       <Image source={{ uri: item.image }} style={styles.productImage} />
       <View style={styles.productInfo}>
         <ThemedText style={styles.productName}>{item.name}</ThemedText>
-        <ThemedText style={styles.productPrice}>{item.price.toLocaleString('vi-VN')}₫</ThemedText>
+        <ThemedText style={styles.productPrice}>
+          {item.price.toLocaleString('vi-VN')}₫
+        </ThemedText>
         {item.rating && (
           <View style={styles.ratingContainer}>
             <ThemedText style={styles.rating}>{item.rating} ⭐</ThemedText>
           </View>
         )}
       </View>
-      <Pressable style={styles.removeButton} onPress={() => handleRemoveFavorite(item.id)}>
+      <Pressable
+        style={styles.removeButton}
+        onPress={() => handleRemoveFavorite(item.id)}
+      >
         <ThemedText style={styles.removeButtonText}>X</ThemedText>
       </Pressable>
     </ThemedView>
@@ -36,12 +49,17 @@ export default function FavoritesScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push('/(tabs)/profile')}
+        >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Sản Phẩm Yêu Thích</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Sản Phẩm Yêu Thích
+        </ThemedText>
       </View>
-      
+
       {favorites.length > 0 ? (
         <FlatList
           data={favorites}
@@ -51,7 +69,9 @@ export default function FavoritesScreen() {
         />
       ) : (
         <ThemedView style={styles.emptyContainer}>
-          <ThemedText style={styles.emptyText}>Bạn chưa có sản phẩm yêu thích nào</ThemedText>
+          <ThemedText style={styles.emptyText}>
+            Bạn chưa có sản phẩm yêu thích nào
+          </ThemedText>
         </ThemedView>
       )}
     </ThemedView>
@@ -63,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f9f9',
- },
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -79,7 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
- },
+  },
   favoriteItem: {
     flexDirection: 'row',
     backgroundColor: '#fff',

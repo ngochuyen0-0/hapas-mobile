@@ -7,8 +7,9 @@ import { User } from '@/types/api';
 interface Customer {
   id: string;
   email: string;
-  name?: string;
-  full_name?: string;
+  full_name: string;
+  phone?: string;
+  address: string;
 }
 
 interface AuthState {
@@ -25,20 +26,21 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     token: null,
     isLoading: true,
   });
 
-  // Load user data from storage on app start
   useEffect(() => {
     const loadUserData = async () => {
       try {
         const userData = await AsyncStorage.getItem('user');
         const token = await AsyncStorage.getItem('token');
-        
+
         if (userData && token) {
           setAuthState({
             user: JSON.parse(userData),
@@ -46,11 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isLoading: false,
           });
         } else {
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
         console.error('Error loading user data:', error);
-        setAuthState(prev => ({ ...prev, isLoading: false }));
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
       }
     };
 
@@ -59,92 +61,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Make API call to authenticate the user
       const response = await apiClient.login(email, password);
-      
-      // Check if response indicates success
       if (response.success && response.token && response.user) {
-        // The API returns customer with full_name, but our User interface expects name
-        // We need to cast to Customer to access full_name
         const customer = response.user as Customer;
         const userToStore: User = {
           id: customer.id,
-          name: customer.full_name || customer.name || 'User',
-          email: customer.email
+          full_name: customer.full_name,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address,
         };
-        
-        // Save to AsyncStorage
         await AsyncStorage.setItem('user', JSON.stringify(userToStore));
         await AsyncStorage.setItem('token', response.token);
-        
         setAuthState({
           user: userToStore,
           token: response.token,
           isLoading: false,
         });
-        
         return true;
       } else {
-        // Handle unsuccessful login (when success is false or missing required fields)
-        console.error('Login failed:', response.message || 'Invalid response structure');
+        console.error(response.message);
         return false;
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error(error);
       return false;
     }
   };
 
   const logout = async (): Promise<void> => {
     try {
-      // Clear from AsyncStorage
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('token');
-      
+
       setAuthState({
         user: null,
         token: null,
         isLoading: false,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error(error);
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const register = async (
+    full_name: string,
+    email: string,
+    password: string,
+  ): Promise<boolean> => {
     try {
-      // Make API call to register the user
-      const response = await apiClient.login(email, password); // Using login endpoint for now, should be register
-      
-      // Check if response indicates success
-      if (response.success && response.token && response.user) {
-        // The API returns customer with full_name, but our User interface expects name
-        // We need to cast to Customer to access full_name
-        const customer = response.user as Customer;
-        const userToStore: User = {
-          id: customer.id,
-          name: customer.full_name || customer.name || name,
-          email: customer.email
-        };
-        
-        // Save to AsyncStorage
-        await AsyncStorage.setItem('user', JSON.stringify(userToStore));
-        await AsyncStorage.setItem('token', response.token);
-        
-        setAuthState({
-          user: userToStore,
-          token: response.token,
-          isLoading: false,
-        });
-        
+      const response = await apiClient.register(full_name, email, password);
+      if (response.success) {
         return true;
       } else {
-        // Handle unsuccessful registration (when success is false or missing required fields)
-        console.error('Registration failed:', response.message || 'Invalid response structure');
+        console.error(response.errors);
         return false;
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error(error);
       return false;
     }
   };

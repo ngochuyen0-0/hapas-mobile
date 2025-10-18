@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Text, ActivityIndicator, Platform, ScrollView, Dimensions, TextInput } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  Dimensions,
+  TextInput,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ProductCard } from '@/components/ProductCard';
@@ -25,19 +35,22 @@ export default function HomeScreen() {
   const sliderData = [
     {
       id: '1',
-      image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=400&fit=crop',
-      title: 'Bộ sưu tập mới'
+      image:
+        'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=400&fit=crop',
+      title: 'Bộ sưu tập mới',
     },
     {
       id: '2',
-      image: 'https://images.unsplash.com/photo-1563107725-66a28043325b?w=800&h=400&fit=crop',
-      title: 'Ưu đãi đặc biệt'
+      image:
+        'https://images.unsplash.com/photo-1563107725-66a28043325b?w=800&h=400&fit=crop',
+      title: 'Ưu đãi đặc biệt',
     },
     {
       id: '3',
-      image: 'https://images.unsplash.com/photo-1599058917765-a780eda07f3b?w=800&h=400&fit=crop',
-      title: 'Sản phẩm nổi bật'
-    }
+      image:
+        'https://images.unsplash.com/photo-1599058917765-a780eda07f3b?w=800&h=400&fit=crop',
+      title: 'Sản phẩm nổi bật',
+    },
   ];
 
   useEffect(() => {
@@ -49,7 +62,7 @@ export default function HomeScreen() {
       setLoading(true);
       const [productsData, categoriesData] = await Promise.all([
         apiClient.getProducts(),
-        apiClient.getCategories()
+        apiClient.getCategories(),
       ]);
       setProducts(productsData);
       setCategories(categoriesData);
@@ -61,23 +74,25 @@ export default function HomeScreen() {
           id: '1',
           name: 'Túi Xách Da Cổ Điển',
           price: 129.99,
-          image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop',
-          category: 'Túi Xách'
+          image:
+            'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop',
+          category: 'Túi Xách',
         },
         {
           id: '2',
           name: 'Túi Đeo Chéo Thiết Kế',
           price: 89.99,
-          image: 'https://images.unsplash.com/photo-1563107725-66a28043325b?w=200&h=200&fit=crop',
-          category: 'Đeo Chéo'
-        }
+          image:
+            'https://images.unsplash.com/photo-1563107725-66a28043325b?w=200&h=200&fit=crop',
+          category: 'Đeo Chéo',
+        },
       ]);
-      
+
       setCategories([
         { id: '1', name: 'Túi Xách' },
         { id: '2', name: 'Đeo Chéo' },
         { id: '3', name: 'Ví Da' },
-        { id: '4', name: 'Phụ Kiện' }
+        { id: '4', name: 'Phụ Kiện' },
       ]);
     } finally {
       setLoading(false);
@@ -107,8 +122,8 @@ export default function HomeScreen() {
       } catch (error) {
         console.error('Error searching products:', error);
         // Fallback to client-side search if API fails
-        const filtered = products.filter(product =>
-          product.name.toLowerCase().includes(query.toLowerCase())
+        const filtered = products.filter((product) =>
+          product.name.toLowerCase().includes(query.toLowerCase()),
         );
         setFilteredProducts(filtered);
       } finally {
@@ -151,7 +166,7 @@ export default function HomeScreen() {
                 Khám Phá Bộ Sưu Tập Của Chúng Tôi
               </ThemedText>
             </ThemedView>
-            
+
             {/* Search Input */}
             <ThemedView style={styles.searchContainer}>
               <TextInput
@@ -163,48 +178,56 @@ export default function HomeScreen() {
               />
               {isSearching && (
                 <View style={styles.searchLoader}>
-                  <ActivityIndicator
-                    size="small"
-                    color="#0000ff"
-                  />
+                  <ActivityIndicator size="small" color="#0000ff" />
                 </View>
               )}
             </ThemedView>
-            
+
             {/* Slider */}
             <ImageSlider slides={sliderData} />
-            
+
             {/* Categories */}
             <ThemedView style={styles.section}>
-              <ThemedText type="title" style={styles.sectionTitle}>Danh Mục</ThemedText>
+              <ThemedText type="title" style={styles.sectionTitle}>
+                Danh Mục
+              </ThemedText>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.categoriesContainer}
               >
-                {categories.map(category => (
+                {categories.map((category) => (
                   <CategoryCard
                     key={category.id}
                     category={category}
                     onPress={(category) => {
                       // Navigate to category screen with category ID
-                      const categoryId = typeof category === 'string' ? category : category.id;
-                      router.push({ pathname: '/(tabs)/category/[id]', params: { id: categoryId } });
+                      const categoryId =
+                        typeof category === 'string' ? category : category.id;
+                      router.push({
+                        pathname: '/(tabs)/category/[id]',
+                        params: { id: categoryId },
+                      });
                     }}
                   />
                 ))}
               </ScrollView>
             </ThemedView>
-            
+
             {/* Products Title */}
             <ThemedView style={styles.section}>
               <ThemedText type="title" style={styles.sectionTitle}>
-                {searchQuery ? `Kết quả tìm kiếm cho: "${searchQuery}"` : 'Sản Phẩm'}
+                {searchQuery
+                  ? `Kết quả tìm kiếm cho: "${searchQuery}"`
+                  : 'Sản Phẩm'}
               </ThemedText>
             </ThemedView>
           </View>
         }
-        contentContainerStyle={[styles.listContent, { paddingBottom: getTabBarHeight() + 20 }]}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: getTabBarHeight() + 20 },
+        ]}
       />
     </ThemedView>
   );

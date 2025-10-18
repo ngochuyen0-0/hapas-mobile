@@ -8,57 +8,64 @@ import { Ionicons } from '@expo/vector-icons';
 export default function NotificationsScreen() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const router = useRouter();
-  
+
   useEffect(() => {
     // Mock data for notifications
     setNotifications([
-      { 
-        id: '1', 
-        title: 'Đơn hàng đã được xác nhận', 
-        message: 'Đơn hàng #ORD-001 của bạn đã được xác nhận và đang được xử lý',
+      {
+        id: '1',
+        title: 'Đơn hàng đã được xác nhận',
+        message:
+          'Đơn hàng #ORD-001 của bạn đã được xác nhận và đang được xử lý',
         date: '2023-06-15',
-        read: false
+        read: false,
       },
-      { 
-        id: '2', 
-        title: 'Ưu đãi đặc biệt', 
-        message: 'Giảm 20% cho đơn hàng tiếp theo của bạn', 
+      {
+        id: '2',
+        title: 'Ưu đãi đặc biệt',
+        message: 'Giảm 20% cho đơn hàng tiếp theo của bạn',
         date: '2023-06-14',
-        read: true
+        read: true,
       },
-      { 
-        id: '3', 
-        title: 'Sản phẩm mới', 
-        message: 'Sản phẩm bạn yêu thích vừa được cập nhật phiên bản mới', 
+      {
+        id: '3',
+        title: 'Sản phẩm mới',
+        message: 'Sản phẩm bạn yêu thích vừa được cập nhật phiên bản mới',
         date: '2023-06-12',
-        read: false
+        read: false,
       },
-      { 
-        id: '4', 
-        title: 'Giao hàng thành công', 
-        message: 'Đơn hàng #ORD-002 đã được giao thành công', 
+      {
+        id: '4',
+        title: 'Giao hàng thành công',
+        message: 'Đơn hàng #ORD-002 đã được giao thành công',
         date: '2023-06-10',
-        read: true
+        read: true,
       },
     ]);
   }, []);
 
   const markAsRead = (id: string) => {
-    setNotifications(notifications.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    ));
+    setNotifications(
+      notifications.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification,
+      ),
+    );
   };
 
   const renderNotificationItem = ({ item }: { item: any }) => (
-    <Pressable 
-      style={[styles.notificationItem, !item.read && styles.unreadNotification]} 
+    <Pressable
+      style={[styles.notificationItem, !item.read && styles.unreadNotification]}
       onPress={() => markAsRead(item.id)}
     >
       <View style={styles.notificationContent}>
-        <ThemedText style={[styles.notificationTitle, !item.read && styles.unreadText]}>
+        <ThemedText
+          style={[styles.notificationTitle, !item.read && styles.unreadText]}
+        >
           {item.title}
         </ThemedText>
-        <ThemedText style={styles.notificationMessage}>{item.message}</ThemedText>
+        <ThemedText style={styles.notificationMessage}>
+          {item.message}
+        </ThemedText>
         <ThemedText style={styles.notificationDate}>{item.date}</ThemedText>
       </View>
       {!item.read && <View style={styles.unreadIndicator} />}
@@ -68,12 +75,17 @@ export default function NotificationsScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push('/(tabs)/profile')}
+        >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Thông Báo</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Thông Báo
+        </ThemedText>
       </View>
-      
+
       {notifications.length > 0 ? (
         <FlatList
           data={notifications}
@@ -83,7 +95,9 @@ export default function NotificationsScreen() {
         />
       ) : (
         <ThemedView style={styles.emptyContainer}>
-          <ThemedText style={styles.emptyText}>Bạn chưa có thông báo nào</ThemedText>
+          <ThemedText style={styles.emptyText}>
+            Bạn chưa có thông báo nào
+          </ThemedText>
         </ThemedView>
       )}
     </ThemedView>
@@ -111,7 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
- },
+  },
   notificationItem: {
     flexDirection: 'row',
     backgroundColor: '#fff',

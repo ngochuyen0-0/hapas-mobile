@@ -8,19 +8,29 @@ interface CategoryCardProps {
   onPress: (category: Category | string) => void;
 }
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
+export const CategoryCard: React.FC<CategoryCardProps> = ({
+  category,
+  onPress,
+}) => {
   // Handle both Category object and string types
   const categoryName = typeof category === 'string' ? category : category.name;
   const categoryId = typeof category === 'string' ? category : category.id;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(category)}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => onPress(category)}
+    >
       <View style={styles.card}>
         {/* Placeholder for category image */}
         <View style={styles.imagePlaceholder}>
-          <ThemedText type="defaultSemiBold">{categoryName.charAt(0)}</ThemedText>
+          <ThemedText type="defaultSemiBold">
+            {categoryName.charAt(0)}
+          </ThemedText>
         </View>
-        <ThemedText style={styles.categoryName} numberOfLines={1}>{categoryName}</ThemedText>
+        <ThemedText style={styles.categoryName} numberOfLines={1}>
+          {categoryName}
+        </ThemedText>
       </View>
     </TouchableOpacity>
   );

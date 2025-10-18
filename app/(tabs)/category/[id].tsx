@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, ActivityIndicator, Text } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ProductCard } from '@/components/ProductCard';
@@ -50,7 +56,9 @@ export default function CategoryScreen() {
     return (
       <ThemedView style={styles.centerContainer}>
         <ThemedText type="default">{error}</ThemedText>
-        <Text style={styles.retryButton} onPress={fetchProductsByCategory}>Thử lại</Text>
+        <Text style={styles.retryButton} onPress={fetchProductsByCategory}>
+          Thử lại
+        </Text>
       </ThemedView>
     );
   }
@@ -73,7 +81,9 @@ export default function CategoryScreen() {
         }
         ListEmptyComponent={
           <ThemedView style={styles.emptyContainer}>
-            <ThemedText type="default">Không có sản phẩm nào trong danh mục này.</ThemedText>
+            <ThemedText type="default">
+              Không có sản phẩm nào trong danh mục này.
+            </ThemedText>
           </ThemedView>
         }
       />

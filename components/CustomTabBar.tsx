@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, Platform, TouchableOpacity, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -17,18 +23,24 @@ interface TabBarItemProps {
 
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 80 : 60;
 
-const TabBarItem: React.FC<TabBarItemProps> = ({ icon, label, isActive, onPress, badgeCount }) => {
+const TabBarItem: React.FC<TabBarItemProps> = ({
+  icon,
+  label,
+  isActive,
+  onPress,
+  badgeCount,
+}) => {
   const colorScheme = useColorScheme();
   const activeColor = Colors[colorScheme ?? 'light'].tint;
   const inactiveColor = colorScheme === 'dark' ? '#888' : '#aaa';
-  
+
   // Map icon names to Lucide components
   const renderIcon = () => {
     const iconProps = {
       size: 24,
       color: isActive ? activeColor : inactiveColor,
     };
-    
+
     switch (icon) {
       case 'home':
         return <Home {...iconProps} />;
@@ -42,20 +54,30 @@ const TabBarItem: React.FC<TabBarItemProps> = ({ icon, label, isActive, onPress,
   };
 
   return (
-    <TouchableOpacity style={styles.tabItem} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
+    <TouchableOpacity
+      style={styles.tabItem}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View
+        style={[styles.iconContainer, isActive && styles.activeIconContainer]}
+      >
         {renderIcon()}
         {badgeCount !== undefined && badgeCount > 0 && (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>{badgeCount > 99 ? '99+' : badgeCount.toString()}</Text>
+            <Text style={styles.badgeText}>
+              {badgeCount > 99 ? '99+' : badgeCount.toString()}
+            </Text>
           </View>
         )}
       </View>
-      <Text style={[
-        styles.label, 
-        { color: isActive ? activeColor : inactiveColor },
-        isActive && styles.activeLabel
-      ]}>
+      <Text
+        style={[
+          styles.label,
+          { color: isActive ? activeColor : inactiveColor },
+          isActive && styles.activeLabel,
+        ]}
+      >
         {label}
       </Text>
     </TouchableOpacity>
@@ -68,7 +90,11 @@ interface CustomTabBarProps {
   navigation: any;
 }
 
-export const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, navigation }) => {
+export const CustomTabBar: React.FC<CustomTabBarProps> = ({
+  state,
+  descriptors,
+  navigation,
+}) => {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
   const { state: cartState } = useCart();
@@ -81,18 +107,20 @@ export const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, 
   ];
 
   return (
-    <View style={[
-      styles.container, 
-      { 
-        paddingBottom: insets.bottom,
-        backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#ffffff',
-        borderTopColor: colorScheme === 'dark' ? '#333' : '#eee',
-      }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingBottom: insets.bottom,
+          backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#ffffff',
+          borderTopColor: colorScheme === 'dark' ? '#333' : '#eee',
+        },
+      ]}
+    >
       <View style={styles.tabBar}>
         {tabs.map((tab, index) => {
           const isFocused = state.index === index;
-          
+
           const onPress = () => {
             const event = navigation.emit({
               type: 'tabPress',

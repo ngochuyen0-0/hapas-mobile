@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, TextInput, Pressable, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState, useEffect } from 'react';
@@ -8,9 +15,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function EditShippingAddressScreen() {
   const router = useRouter();
- const params = useLocalSearchParams();
+  const params = useLocalSearchParams();
   const { addressId } = params;
-  
+
   const [addressData, setAddressData] = useState({
     id: '',
     name: '',
@@ -54,9 +61,11 @@ export default function EditShippingAddressScreen() {
       console.log('Existing addresses from storage:', savedAddresses);
       const addresses = savedAddresses ? JSON.parse(savedAddresses) : [];
       console.log('Parsed existing addresses:', addresses);
-      
+
       // Find and update the specific address
-      const addressIndex = addresses.findIndex((addr: any) => addr.id === addressData.id);
+      const addressIndex = addresses.findIndex(
+        (addr: any) => addr.id === addressData.id,
+      );
       console.log('Address index to update:', addressIndex);
       if (addressIndex !== -1) {
         // If setting as default, update other addresses to not be default
@@ -67,85 +76,123 @@ export default function EditShippingAddressScreen() {
             }
           });
         }
-        
+
         // Update the address
         addresses[addressIndex] = addressData;
-        console.log('Updated address at index:', addressIndex, addresses[addressIndex]);
+        console.log(
+          'Updated address at index:',
+          addressIndex,
+          addresses[addressIndex],
+        );
       }
-      
+
       // Save updated addresses
-      await AsyncStorage.setItem('shippingAddresses', JSON.stringify(addresses));
+      await AsyncStorage.setItem(
+        'shippingAddresses',
+        JSON.stringify(addresses),
+      );
       console.log('Saved updated addresses to storage');
-      
+
       // Verify the save was successful
       const savedData = await AsyncStorage.getItem('shippingAddresses');
-      console.log('Verified saved data:', savedData ? JSON.parse(savedData) : 'No data found');
-      
+      console.log(
+        'Verified saved data:',
+        savedData ? JSON.parse(savedData) : 'No data found',
+      );
+
       Alert.alert('Thông báo', 'Địa chỉ đã được cập nhật thành công!', [
         {
           text: 'OK',
-          onPress: () => router.push('/(tabs)/profile/shipping-address')
-        }
+          onPress: () => router.push('/(tabs)/profile/shipping-address'),
+        },
       ]);
     } catch (error) {
       console.error('Error saving address:', error);
       Alert.alert('Lỗi', 'Không thể lưu địa chỉ. Vui lòng thử lại sau.');
     }
- };
+  };
 
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/profile/shipping-address')}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push('/(tabs)/profile/shipping-address')}
+        >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Chỉnh Sửa Địa Chỉ</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Chỉnh Sửa Địa Chỉ
+        </ThemedText>
       </View>
-      
+
       <ThemedView style={styles.formContainer}>
         <View style={styles.inputGroup}>
           <ThemedText style={styles.label}>Họ và tên</ThemedText>
           <TextInput
             style={styles.input}
             value={addressData.name}
-            onChangeText={(text) => setAddressData({...addressData, name: text})}
+            onChangeText={(text) =>
+              setAddressData({ ...addressData, name: text })
+            }
             placeholder="Nhập họ và tên người nhận"
           />
         </View>
-        
+
         <View style={styles.inputGroup}>
           <ThemedText style={styles.label}>Số điện thoại</ThemedText>
           <TextInput
             style={styles.input}
             value={addressData.phone}
-            onChangeText={(text) => setAddressData({...addressData, phone: text})}
+            onChangeText={(text) =>
+              setAddressData({ ...addressData, phone: text })
+            }
             placeholder="Nhập số điện thoại"
             keyboardType="phone-pad"
           />
         </View>
-        
+
         <View style={styles.inputGroup}>
           <ThemedText style={styles.label}>Địa chỉ</ThemedText>
           <TextInput
             style={[styles.input, styles.textArea]}
             value={addressData.address}
-            onChangeText={(text) => setAddressData({...addressData, address: text})}
+            onChangeText={(text) =>
+              setAddressData({ ...addressData, address: text })
+            }
             placeholder="Nhập địa chỉ đầy đủ"
             multiline
             numberOfLines={4}
           />
         </View>
-        
-        <Pressable 
-          style={[styles.checkboxContainer, addressData.isDefault && styles.checkboxContainerSelected]}
-          onPress={() => setAddressData({...addressData, isDefault: !addressData.isDefault})}
+
+        <Pressable
+          style={[
+            styles.checkboxContainer,
+            addressData.isDefault && styles.checkboxContainerSelected,
+          ]}
+          onPress={() =>
+            setAddressData({
+              ...addressData,
+              isDefault: !addressData.isDefault,
+            })
+          }
         >
-          <View style={[styles.checkbox, addressData.isDefault && styles.checkboxSelected]}>
-            {addressData.isDefault && <Ionicons name="checkmark" size={16} color="#fff" />}
+          <View
+            style={[
+              styles.checkbox,
+              addressData.isDefault && styles.checkboxSelected,
+            ]}
+          >
+            {addressData.isDefault && (
+              <Ionicons name="checkmark" size={16} color="#fff" />
+            )}
           </View>
-          <ThemedText style={styles.checkboxLabel}>Đặt làm địa chỉ mặc định</ThemedText>
+          <ThemedText style={styles.checkboxLabel}>
+            Đặt làm địa chỉ mặc định
+          </ThemedText>
         </Pressable>
-        
+
         <Pressable style={styles.saveButton} onPress={handleSave}>
           <ThemedText style={styles.saveButtonText}>Lưu Thay Đổi</ThemedText>
         </Pressable>
@@ -165,11 +212,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
- backButton: {
+  backButton: {
     padding: 5,
     marginRight: 15,
   },
- title: {
+  title: {
     flex: 1,
     textAlign: 'center',
     fontSize: 24,

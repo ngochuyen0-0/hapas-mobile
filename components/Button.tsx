@@ -23,7 +23,7 @@ export function Button({
 }: ButtonProps) {
   const backgroundColor = useThemeColor(
     { light: '#000', dark: '#fff' },
-    'background'
+    'background',
   );
   const color = useThemeColor({ light: '#fff', dark: '#000' }, 'text');
 
@@ -34,10 +34,7 @@ export function Button({
     style,
   ];
 
-  const textStyle = [
-    styles.text,
-    { color: getVariantColor(variant, 'text') },
-  ];
+  const textStyle = [styles.text, { color: getVariantColor(variant, 'text') }];
 
   if (href) {
     return (
@@ -54,9 +51,9 @@ export function Button({
   }
 
   return (
-    <Pressable 
-      style={buttonStyle} 
-      onPress={onPress} 
+    <Pressable
+      style={buttonStyle}
+      onPress={onPress}
       disabled={disabled || loading}
     >
       {loading ? (
@@ -74,7 +71,7 @@ const getVariantColor = (variant: string, type: 'background' | 'text') => {
     secondary: { background: '#666', text: '#fff' },
     danger: { background: '#ff4444', text: '#fff' },
   };
-  
+
   return colors[variant as keyof typeof colors]?.[type] || colors.primary[type];
 };
 

@@ -18,7 +18,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       const success = await login(credentials.email, credentials.password);
-      
+
       if (success) {
         router.push('/(tabs)');
       } else {
@@ -26,7 +26,10 @@ export default function LoginScreen() {
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Lỗi đăng nhập', 'Email hoặc mật khẩu không đúng. Vui lòng thử lại!');
+      Alert.alert(
+        'Lỗi đăng nhập',
+        'Email hoặc mật khẩu không đúng. Vui lòng thử lại!',
+      );
     } finally {
       setLoading(false);
     }
@@ -42,9 +45,13 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Chào Mừng Đến Hapas</ThemedText>
-      <ThemedText style={styles.subtitle}>Đăng nhập vào tài khoản của bạn</ThemedText>
-      
+      <ThemedText type="title" style={styles.title}>
+        Chào Mừng Đến Hapas
+      </ThemedText>
+      <ThemedText style={styles.subtitle}>
+        Đăng nhập vào tài khoản của bạn
+      </ThemedText>
+
       <ThemedView style={styles.form}>
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Email</ThemedText>
@@ -57,7 +64,7 @@ export default function LoginScreen() {
             autoCapitalize="none"
           />
         </ThemedView>
-        
+
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Mật Khẩu</ThemedText>
           <TextInput
@@ -68,9 +75,9 @@ export default function LoginScreen() {
             secureTextEntry
           />
         </ThemedView>
-        
-        <Pressable 
-          style={[styles.loginButton, loading && styles.disabledButton]} 
+
+        <Pressable
+          style={[styles.loginButton, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}
         >
@@ -78,12 +85,12 @@ export default function LoginScreen() {
             {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
           </Text>
         </Pressable>
-        
+
         <Pressable style={styles.forgotPassword}>
           <Text style={styles.forgotPasswordText}>Quên Mật Khẩu?</Text>
         </Pressable>
       </ThemedView>
-      
+
       <ThemedView style={styles.signupContainer}>
         <ThemedText>Chưa có tài khoản? </ThemedText>
         <Pressable onPress={handleSignUp}>

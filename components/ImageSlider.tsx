@@ -17,17 +17,23 @@ interface ImageSliderProps {
 export const ImageSlider: React.FC<ImageSliderProps> = ({ slides }) => {
   return (
     <View style={styles.sliderContainer}>
-      <ScrollView 
-        horizontal 
-        pagingEnabled 
+      <ScrollView
+        horizontal
+        pagingEnabled
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
         {slides.map((slide) => (
           <View key={slide.id} style={styles.slide}>
-            <Image source={{ uri: slide.image }} style={styles.image} resizeMode="cover" />
+            <Image
+              source={{ uri: slide.image }}
+              style={styles.image}
+              resizeMode="cover"
+            />
             <View style={styles.overlay}>
-              <ThemedText type="title" style={styles.slideTitle}>{slide.title}</ThemedText>
+              <ThemedText type="title" style={styles.slideTitle}>
+                {slide.title}
+              </ThemedText>
             </View>
           </View>
         ))}
@@ -44,8 +50,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
-  scrollContainer: {
-  },
+  scrollContainer: {},
   slide: {
     width: width - 40,
     height: '100%',

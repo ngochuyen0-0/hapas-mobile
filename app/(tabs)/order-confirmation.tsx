@@ -12,23 +12,36 @@ export default function OrderConfirmationScreen() {
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.content}>
-        <ThemedText type="title" style={styles.title}>Đặt Hàng Thành Công!</ThemedText>
-        <ThemedText style={styles.message}>
-          Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được nhận và đang được xử lý.
+        <ThemedText type="title" style={styles.title}>
+          Đặt Hàng Thành Công!
         </ThemedText>
-        
+        <ThemedText style={styles.message}>
+          Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được nhận và đang được xử
+          lý.
+        </ThemedText>
+
         <ThemedView style={styles.orderDetails}>
           <ThemedText style={styles.detailLabel}>Số Đơn Hàng:</ThemedText>
-          <ThemedText style={styles.detailValue}>#{orderId || 'ORD-' + Date.now()}</ThemedText>
-          
+          <ThemedText style={styles.detailValue}>
+            #{orderId || 'ORD-' + Date.now()}
+          </ThemedText>
+
           <ThemedText style={styles.detailLabel}>Ngày Đặt Hàng:</ThemedText>
-          <ThemedText style={styles.detailValue}>{orderDate || new Date().toLocaleDateString('vi-VN')}</ThemedText>
-          
+          <ThemedText style={styles.detailValue}>
+            {orderDate || new Date().toLocaleDateString('vi-VN')}
+          </ThemedText>
+
           <ThemedText style={styles.detailLabel}>Tổng Cộng:</ThemedText>
-          <ThemedText style={styles.detailValue}>${totalAmount || '0.00'}</ThemedText>
+          <ThemedText style={styles.detailValue}>
+            ${totalAmount || '0.00'}
+          </ThemedText>
         </ThemedView>
-        
-        <Button title="Tiếp Tục Mua Sắm" href="/" style={[styles.button, { marginBottom: getTabBarHeight() + 20 }]} />
+
+        <Button
+          title="Tiếp Tục Mua Sắm"
+          href="/"
+          style={[styles.button, { marginBottom: getTabBarHeight() + 20 }]}
+        />
       </ThemedView>
     </ThemedView>
   );

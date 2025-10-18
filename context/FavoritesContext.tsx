@@ -3,9 +3,9 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 type Favorite = {
   id: string;
   name: string;
- price: number;
- image: string;
- rating?: number;
+  price: number;
+  image: string;
+  rating?: number;
 };
 
 type FavoritesState = {
@@ -17,44 +17,51 @@ type FavoritesAction =
   | { type: 'REMOVE_FAVORITE'; payload: string }
   | { type: 'SET_FAVORITES'; payload: Favorite[] };
 
-const favoritesReducer = (state: FavoritesState, action: FavoritesAction): FavoritesState => {
+const favoritesReducer = (
+  state: FavoritesState,
+  action: FavoritesAction,
+): FavoritesState => {
   switch (action.type) {
     case 'ADD_FAVORITE':
       // Check if item is already in favorites to avoid duplicates
-      const exists = state.items.some(item => item.id === action.payload.id);
+      const exists = state.items.some((item) => item.id === action.payload.id);
       if (exists) {
         return state;
       }
       return {
-        items: [...state.items, action.payload]
+        items: [...state.items, action.payload],
       };
     case 'REMOVE_FAVORITE':
       return {
-        items: state.items.filter(item => item.id !== action.payload)
+        items: state.items.filter((item) => item.id !== action.payload),
       };
     case 'SET_FAVORITES':
       return {
-        items: action.payload
+        items: action.payload,
       };
     default:
       return state;
- }
+  }
 };
 
 type FavoritesContextType = {
   favorites: Favorite[];
   addFavorite: (product: Favorite) => void;
- removeFavorite: (id: string) => void;
+  removeFavorite: (id: string) => void;
   isFavorite: (id: string) => boolean;
 };
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+const FavoritesContext = createContext<FavoritesContextType | undefined>(
+  undefined,
+);
 
 type FavoritesProviderProps = {
- children: ReactNode;
+  children: ReactNode;
 };
 
-export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({
+  children,
+}) => {
   const [state, dispatch] = useReducer(favoritesReducer, { items: [] });
 
   const addFavorite = (product: Favorite) => {
@@ -66,16 +73,18 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   };
 
   const isFavorite = (id: string) => {
-    return state.items.some(item => item.id === id);
+    return state.items.some((item) => item.id === id);
   };
 
   return (
-    <FavoritesContext.Provider value={{ 
-      favorites: state.items, 
-      addFavorite, 
-      removeFavorite, 
-      isFavorite 
-    }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites: state.items,
+        addFavorite,
+        removeFavorite,
+        isFavorite,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );

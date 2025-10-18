@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, FlatList, Pressable, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState, useEffect } from 'react';
@@ -8,52 +15,80 @@ import { Ionicons } from '@expo/vector-icons';
 export default function PaymentMethodsScreen() {
   const router = useRouter();
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
-  
+
   useEffect(() => {
     // Mock data for payment methods
     setPaymentMethods([
-      { 
-        id: '1', 
+      {
+        id: '1',
         type: 'Visa',
         number: '**** **** **** 1234',
         expiry: '12/25',
-        isDefault: true
+        isDefault: true,
       },
-      { 
-        id: '2', 
+      {
+        id: '2',
         type: 'Mastercard',
         number: '**** **** **** 5678',
         expiry: '08/24',
-        isDefault: false
+        isDefault: false,
       },
-      { 
-        id: '3', 
+      {
+        id: '3',
         type: 'PayPal',
         number: 'user@example.com',
         expiry: '',
-        isDefault: false
+        isDefault: false,
       },
     ]);
   }, []);
 
   const renderPaymentMethod = ({ item }: { item: any }) => (
-    <ThemedView style={[styles.paymentItem, item.isDefault && styles.defaultPayment]}>
+    <ThemedView
+      style={[styles.paymentItem, item.isDefault && styles.defaultPayment]}
+    >
       <View style={styles.paymentHeader}>
         <View style={styles.paymentInfo}>
           <ThemedText style={styles.paymentType}>{item.type}</ThemedText>
           <ThemedText style={styles.paymentNumber}>{item.number}</ThemedText>
-          {item.expiry ? <ThemedText style={styles.paymentExpiry}>Hết hạn: {item.expiry}</ThemedText> : null}
+          {item.expiry ? (
+            <ThemedText style={styles.paymentExpiry}>
+              Hết hạn: {item.expiry}
+            </ThemedText>
+          ) : null}
         </View>
         <View style={styles.paymentActions}>
           {!item.isDefault && (
-            <Pressable style={styles.setDefaultButton} onPress={() => setDefaultMethod(item.id)}>
-              <ThemedText style={styles.setDefaultButtonText}>Đặt mặc định</ThemedText>
+            <Pressable
+              style={styles.setDefaultButton}
+              onPress={() => setDefaultMethod(item.id)}
+            >
+              <ThemedText style={styles.setDefaultButtonText}>
+                Đặt mặc định
+              </ThemedText>
             </Pressable>
           )}
-          <Pressable style={styles.deleteButton} onPress={() => Alert.alert('Xóa phương thức', `Bạn có chắc muốn xóa phương thức thanh toán này?`, [
-            { text: 'Hủy', style: 'cancel' },
-            { text: 'Xóa', onPress: () => setPaymentMethods(paymentMethods.filter(method => method.id !== item.id)) }
-          ])}>
+          <Pressable
+            style={styles.deleteButton}
+            onPress={() =>
+              Alert.alert(
+                'Xóa phương thức',
+                `Bạn có chắc muốn xóa phương thức thanh toán này?`,
+                [
+                  { text: 'Hủy', style: 'cancel' },
+                  {
+                    text: 'Xóa',
+                    onPress: () =>
+                      setPaymentMethods(
+                        paymentMethods.filter(
+                          (method) => method.id !== item.id,
+                        ),
+                      ),
+                  },
+                ],
+              )
+            }
+          >
             <ThemedText style={styles.deleteButtonText}>Xóa</ThemedText>
           </Pressable>
         </View>
@@ -62,10 +97,12 @@ export default function PaymentMethodsScreen() {
   );
 
   const setDefaultMethod = (id: string) => {
-    setPaymentMethods(paymentMethods.map(method => ({
-      ...method,
-      isDefault: method.id === id
-    })));
+    setPaymentMethods(
+      paymentMethods.map((method) => ({
+        ...method,
+        isDefault: method.id === id,
+      })),
+    );
   };
 
   return (
@@ -74,9 +111,11 @@ export default function PaymentMethodsScreen() {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Phương Thức Thanh Toán</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Phương Thức Thanh Toán
+        </ThemedText>
       </View>
-      
+
       <ThemedView style={styles.content}>
         <FlatList
           data={paymentMethods}
@@ -84,10 +123,20 @@ export default function PaymentMethodsScreen() {
           renderItem={renderPaymentMethod}
           showsVerticalScrollIndicator={false}
         />
-        
-        <Pressable style={styles.addButton} onPress={() => Alert.alert('Thêm phương thức mới', 'Tính năng sẽ được cập nhật trong phiên bản tiếp theo')}>
+
+        <Pressable
+          style={styles.addButton}
+          onPress={() =>
+            Alert.alert(
+              'Thêm phương thức mới',
+              'Tính năng sẽ được cập nhật trong phiên bản tiếp theo',
+            )
+          }
+        >
           <Ionicons name="add" size={24} color="#fff" />
-          <ThemedText style={styles.addButtonText}>Thêm Phương Thức Mới</ThemedText>
+          <ThemedText style={styles.addButtonText}>
+            Thêm Phương Thức Mới
+          </ThemedText>
         </Pressable>
       </ThemedView>
     </ThemedView>
@@ -115,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
- },
+  },
   content: {
     flex: 1,
   },
@@ -144,7 +193,7 @@ const styles = StyleSheet.create({
   paymentInfo: {
     flex: 1,
   },
- paymentType: {
+  paymentType: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
@@ -174,7 +223,7 @@ const styles = StyleSheet.create({
   setDefaultButtonText: {
     fontSize: 12,
     color: '#333',
- },
+  },
   deleteButton: {
     paddingVertical: 4,
     paddingHorizontal: 10,

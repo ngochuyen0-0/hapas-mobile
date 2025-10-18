@@ -8,21 +8,25 @@ const getBaseUrl = () => {
   if (__DEV__) {
     // For Android emulator, use 10.0.2.2 to access host machine
     // For iOS simulator, use localhost
-    return Platform.OS === 'android' || Platform.OS === "ios"
-      ? 'http://172.20.10.7:3000' 
+    return Platform.OS === 'android' || Platform.OS === 'ios'
+      ? 'http://192.168.1.31:3000'
       : 'http://localhost:3000';
   }
   // In production, use your actual domain
-  return 'http://172.20.10.7:3000';
+  return 'http://192.168.1.31:3000';
 };
 
 const BASE_URL = getBaseUrl();
 
 // Helper function to get the first image URL from image_urls
-const getFirstImageUrl = (imageUrls: string | null | undefined): string | undefined => {
+const getFirstImageUrl = (
+  imageUrls: string | null | undefined,
+): string | undefined => {
   if (!imageUrls) return undefined;
-  
-  const urls = imageUrls.startsWith("data:image") ? [imageUrls] : imageUrls.split(',');
+
+  const urls = imageUrls.startsWith('data:image')
+    ? [imageUrls]
+    : imageUrls.split(',');
   const firstUrl = urls[0].trim();
   return firstUrl || undefined;
 };
@@ -34,17 +38,17 @@ export const apiClient = {
     try {
       const response = await fetch(`${BASE_URL}/api/public/products`);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch products');
       }
-      
+
       // Map image_urls to image field for mobile app compatibility
       const products = (data.products || data || []).map((product: any) => ({
         ...product,
-        image: product.image || getFirstImageUrl(product.image_urls)
+        image: product.image || getFirstImageUrl(product.image_urls),
       }));
-      
+
       return products;
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -55,24 +59,26 @@ export const apiClient = {
   // Search products by query (public endpoint)
   async searchProducts(query: string, categoryId?: string): Promise<Product[]> {
     try {
-      let url = `${BASE_URL}/api/public/products/search?q=${encodeURIComponent(query)}`;
+      let url = `${BASE_URL}/api/public/products/search?q=${encodeURIComponent(
+        query,
+      )}`;
       if (categoryId) {
         url += `&category_id=${encodeURIComponent(categoryId)}`;
       }
-      
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to search products');
       }
-      
+
       // Map image_urls to image field for mobile app compatibility
       const products = (data.products || []).map((product: any) => ({
         ...product,
-        image: product.image || getFirstImageUrl(product.image_urls)
+        image: product.image || getFirstImageUrl(product.image_urls),
       }));
-      
+
       return products;
     } catch (error) {
       console.error('Error searching products:', error);
@@ -85,17 +91,17 @@ export const apiClient = {
     try {
       const response = await fetch(`${BASE_URL}/api/public/products/${id}`);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch product');
       }
-      
+
       const product = data.product || data;
-      
+
       // Map image_urls to image field for mobile app compatibility
       return {
         ...product,
-        image: product.image || getFirstImageUrl(product.image_urls)
+        image: product.image || getFirstImageUrl(product.image_urls),
       };
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error);
@@ -108,11 +114,11 @@ export const apiClient = {
     try {
       const response = await fetch(`${BASE_URL}/api/public/categories`);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch categories');
       }
-      
+
       return data.categories || [];
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -123,27 +129,33 @@ export const apiClient = {
   // Fetch products by category ID (public endpoint)
   async getProductsByCategory(categoryId: string): Promise<Product[]> {
     try {
-      const response = await fetch(`${BASE_URL}/api/public/products?category_id=${encodeURIComponent(categoryId)}`);
+      const response = await fetch(
+        `${BASE_URL}/api/public/products?category_id=${encodeURIComponent(
+          categoryId,
+        )}`,
+      );
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch products by category');
       }
-      
+
       // Map image_urls to image field for mobile app compatibility
       const products = (data.products || []).map((product: any) => ({
         ...product,
-        image: product.image || getFirstImageUrl(product.image_urls)
+        image: product.image || getFirstImageUrl(product.image_urls),
       }));
-      
+
       return products;
     } catch (error) {
-      console.error(`Error fetching products for category ${categoryId}:`, error);
+      console.error(
+        `Error fetching products for category ${categoryId}:`,
+        error,
+      );
       throw error;
     }
   },
 
-  // User authentication
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -153,13 +165,12 @@ export const apiClient = {
         },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await response.json();
-      
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Login error:', error);
@@ -167,21 +178,41 @@ export const apiClient = {
     }
   },
 
+  async register(full_name: string, email: string, password: string) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ full_name, email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.errors);
+      }
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
   // Get user profile
   async getProfile(token: string): Promise<User> {
     try {
       const response = await fetch(`${BASE_URL}/api/customer/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch profile');
       }
-      
+
       return data.user || data;
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -194,16 +225,16 @@ export const apiClient = {
     try {
       const response = await fetch(`${BASE_URL}/api/customer/orders`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch orders');
       }
-      
+
       return data.orders || [];
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -218,17 +249,17 @@ export const apiClient = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orderData),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to create order');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Error creating order:', error);

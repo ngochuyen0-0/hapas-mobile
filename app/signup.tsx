@@ -16,30 +16,50 @@ export default function SignUpScreen() {
     confirmPassword: '',
   });
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): boolean => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
   const handleSignUp = async () => {
-    // Validate required fields
     if (!userInfo.name || !userInfo.email || !userInfo.password) {
       Alert.alert('Thông báo', 'Vui lòng điền đầy đủ thông tin');
       return;
     }
-    
-    if (userInfo.password !== userInfo.confirmPassword) {
-      Alert.alert('Thông báo', 'Mật khẩu xác nhận không khớp');
+
+    if (!validateEmail(userInfo.email)) {
+      Alert.alert('Thông báo', 'Email không đúng định dạng');
       return;
     }
-    
-    if (userInfo.password.length < 6) {
-      Alert.alert('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự');
+    if (!validatePassword(userInfo.password)) {
+      Alert.alert(
+        'Thông báo',
+        'Mật khẩu phải có 8 ký tự bao gồm chữ hoa, chữ thường và số',
+      );
+      return;
+    }
+
+    if (userInfo.password !== userInfo.confirmPassword) {
+      Alert.alert('Thông báo', 'Mật khẩu xác nhận không khớp');
       return;
     }
 
     try {
       setLoading(true);
-      const success = await register(userInfo.name, userInfo.email, userInfo.password);
-      
+      const success = await register(
+        userInfo.name,
+        userInfo.email,
+        userInfo.password,
+      );
+
       if (success) {
         Alert.alert('Thành công', 'Đăng ký tài khoản thành công!', [
-          { text: 'OK', onPress: () => router.push('/(tabs)') }
+          { text: 'OK', onPress: () => router.push('/(tabs)') },
         ]);
       } else {
         Alert.alert('Lỗi', 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.');
@@ -58,9 +78,13 @@ export default function SignUpScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Tạo Tài Khoản</ThemedText>
-      <ThemedText style={styles.subtitle}>Tạo tài khoản mới để mua sắm</ThemedText>
-      
+      <ThemedText type="title" style={styles.title}>
+        Tạo Tài Khoản
+      </ThemedText>
+      <ThemedText style={styles.subtitle}>
+        Tạo tài khoản mới để mua sắm
+      </ThemedText>
+
       <ThemedView style={styles.form}>
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Họ Và Tên</ThemedText>
@@ -71,7 +95,7 @@ export default function SignUpScreen() {
             placeholder="Nhập họ và tên"
           />
         </ThemedView>
-        
+
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Email</ThemedText>
           <TextInput
@@ -83,7 +107,7 @@ export default function SignUpScreen() {
             autoCapitalize="none"
           />
         </ThemedView>
-        
+
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Mật Khẩu</ThemedText>
           <TextInput
@@ -94,20 +118,22 @@ export default function SignUpScreen() {
             secureTextEntry
           />
         </ThemedView>
-        
+
         <ThemedView style={styles.inputGroup}>
           <ThemedText style={styles.label}>Xác Nhận Mật Khẩu</ThemedText>
           <TextInput
             style={styles.input}
             value={userInfo.confirmPassword}
-            onChangeText={(value) => handleInputChange('confirmPassword', value)}
+            onChangeText={(value) =>
+              handleInputChange('confirmPassword', value)
+            }
             placeholder="Nhập lại mật khẩu"
             secureTextEntry
           />
         </ThemedView>
-        
-        <Pressable 
-          style={[styles.signUpButton, loading && styles.disabledButton]} 
+
+        <Pressable
+          style={[styles.signUpButton, loading && styles.disabledButton]}
           onPress={handleSignUp}
           disabled={loading}
         >
@@ -116,7 +142,7 @@ export default function SignUpScreen() {
           </Text>
         </Pressable>
       </ThemedView>
-      
+
       <ThemedView style={styles.loginContainer}>
         <ThemedText>Đã có tài khoản? </ThemedText>
         <Pressable onPress={() => router.push('/login')}>

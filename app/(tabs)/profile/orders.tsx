@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, FlatList, Pressable, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,15 +16,27 @@ export default function OrderHistoryScreen() {
   const { status } = useLocalSearchParams();
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
-  const [activeOrderStatus, setActiveOrderStatus] = useState<string>(status as string || 'all');
-  
+  const [activeOrderStatus, setActiveOrderStatus] = useState<string>(
+    (status as string) || 'all',
+  );
+
   useEffect(() => {
     // Mock data for orders
     setOrders([
       { id: 'ORD-01', date: '2023-06-15', total: 129000, status: 'Đã Giao' },
       { id: 'ORD-002', date: '2023-06-10', total: 89000, status: 'Đã Giao' },
-      { id: 'ORD-003', date: '2023-06-05', total: 199000, status: 'Đang Xử Lý' },
-      { id: 'ORD-004', date: '2023-06-01', total: 75000, status: 'Chờ Xác Nhận' },
+      {
+        id: 'ORD-003',
+        date: '2023-06-05',
+        total: 199000,
+        status: 'Đang Xử Lý',
+      },
+      {
+        id: 'ORD-004',
+        date: '2023-06-01',
+        total: 75000,
+        status: 'Chờ Xác Nhận',
+      },
       { id: 'ORD-005', date: '2023-05-28', total: 210000, status: 'Đang Giao' },
       { id: 'ORD-006', date: '2023-05-20', total: 85000, status: 'Đã Hủy' },
     ]);
@@ -25,15 +44,25 @@ export default function OrderHistoryScreen() {
 
   const getOrdersByStatus = (status: string) => {
     if (status === 'all') return orders;
-    return orders.filter(order => order.status.toLowerCase().includes(status.toLowerCase()));
+    return orders.filter((order) =>
+      order.status.toLowerCase().includes(status.toLowerCase()),
+    );
   };
 
   const renderOrderStatusTab = (status: string, title: string) => (
-    <Pressable 
-      style={[styles.orderStatusTab, activeOrderStatus === status && styles.activeOrderStatusTab]}
+    <Pressable
+      style={[
+        styles.orderStatusTab,
+        activeOrderStatus === status && styles.activeOrderStatusTab,
+      ]}
       onPress={() => setActiveOrderStatus(status)}
     >
-      <ThemedText style={[styles.orderStatusText, activeOrderStatus === status && styles.activeOrderStatusText]}>
+      <ThemedText
+        style={[
+          styles.orderStatusText,
+          activeOrderStatus === status && styles.activeOrderStatusText,
+        ]}
+      >
         {title}
       </ThemedText>
     </Pressable>
@@ -42,12 +71,17 @@ export default function OrderHistoryScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push('/(tabs)/profile')}
+        >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
-        <ThemedText type="title" style={styles.title}>Lịch Sử Đơn Hàng</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          Lịch Sử Đơn Hàng
+        </ThemedText>
       </View>
-      
+
       {/* Order Status Tabs */}
       <ThemedView style={styles.section}>
         <View style={styles.orderStatusTabs}>
@@ -59,39 +93,56 @@ export default function OrderHistoryScreen() {
           {renderOrderStatusTab('đã hủy', 'Đã Hủy')}
         </View>
       </ThemedView>
-      
+
       {/* Orders List */}
       <ThemedView style={styles.section}>
         <FlatList
           data={getOrdersByStatus(activeOrderStatus)}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <Pressable style={styles.orderRow} onPress={() => Alert.alert('Chi tiết đơn hàng', `Mã đơn hàng: ${item.id}`)}>
+            <Pressable
+              style={styles.orderRow}
+              onPress={() =>
+                Alert.alert('Chi tiết đơn hàng', `Mã đơn hàng: ${item.id}`)
+              }
+            >
               <ThemedView>
                 <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
                 <ThemedText style={styles.orderDate}>{item.date}</ThemedText>
               </ThemedView>
               <ThemedView style={styles.orderRight}>
-                <ThemedText>{typeof item.total === 'number' ? item.total.toLocaleString('vi-VN') + '₫' : item.total}</ThemedText>
-                <ThemedText style={[
-                  styles.orderStatus, 
-                  { 
-                    color: 
-                      item.status.includes('Giao') ? '#4CAF50' : 
-                      item.status.includes('Xác Nhận') ? '#FF9800' : 
-                      item.status.includes('Xử Lý') ? '#2196F3' : 
-                      item.status.includes('Hủy') ? '#F44336' : '#9E9E9E'
-                  }
-                ]}>
+                <ThemedText>
+                  {typeof item.total === 'number'
+                    ? item.total.toLocaleString('vi-VN') + '₫'
+                    : item.total}
+                </ThemedText>
+                <ThemedText
+                  style={[
+                    styles.orderStatus,
+                    {
+                      color: item.status.includes('Giao')
+                        ? '#4CAF50'
+                        : item.status.includes('Xác Nhận')
+                          ? '#FF9800'
+                          : item.status.includes('Xử Lý')
+                            ? '#2196F3'
+                            : item.status.includes('Hủy')
+                              ? '#F44336'
+                              : '#9E9E9E',
+                    },
+                  ]}
+                >
                   {item.status}
                 </ThemedText>
               </ThemedView>
             </Pressable>
           )}
         />
-        
+
         {getOrdersByStatus(activeOrderStatus).length === 0 && (
-          <ThemedText style={styles.noOrdersText}>Không có đơn hàng nào</ThemedText>
+          <ThemedText style={styles.noOrdersText}>
+            Không có đơn hàng nào
+          </ThemedText>
         )}
       </ThemedView>
     </ThemedView>
@@ -119,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
- },
+  },
   section: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -175,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 4,
- },
+  },
   orderRight: {
     alignItems: 'flex-end',
   },
