@@ -3,7 +3,7 @@ import {
   StyleSheet,
   View,
   FlatList,
-  Text,
+ Text,
   ActivityIndicator,
   Platform,
   ScrollView,
@@ -13,8 +13,9 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ProductCard } from '@/components/ProductCard';
-import { ImageSlider } from '@/components/ImageSlider';
-import { CategoryCard } from '@/components/CategoryCard';
+import ThreeFrameBanner from '@/components/ThreeFrameBanner';
+import CategoryCard from '@/components/CategoryCard';
+import SearchBar from '@/components/SearchBar';
 import { apiClient } from '@/lib/apiClient';
 import { getTabBarHeight } from '@/components/CustomTabBar';
 import { Product, Category } from '@/types/api';
@@ -130,7 +131,7 @@ export default function HomeScreen() {
         setIsSearching(false);
       }
     }
-  };
+ };
 
   const renderProduct = ({ item }: { item: Product }) => (
     <ProductCard product={item} />
@@ -167,24 +168,16 @@ export default function HomeScreen() {
               </ThemedText>
             </ThemedView>
 
-            {/* Search Input */}
-            <ThemedView style={styles.searchContainer}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Tìm kiếm sản phẩm..."
-                value={searchQuery}
-                onChangeText={handleSearch}
-                placeholderTextColor="#999"
-              />
-              {isSearching && (
-                <View style={styles.searchLoader}>
-                  <ActivityIndicator size="small" color="#0000ff" />
-                </View>
-              )}
-            </ThemedView>
+            {/* Search Bar */}
+            <SearchBar 
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSearch={handleSearch}
+              isSearching={isSearching}
+            />
 
             {/* Slider */}
-            <ImageSlider slides={sliderData} />
+            <ThreeFrameBanner banners={sliderData} />
 
             {/* Categories */}
             <ThemedView style={styles.section}>
@@ -202,8 +195,7 @@ export default function HomeScreen() {
                     category={category}
                     onPress={(category) => {
                       // Navigate to category screen with category ID
-                      const categoryId =
-                        typeof category === 'string' ? category : category.id;
+                      const categoryId = category.id;
                       router.push({
                         pathname: '/(tabs)/category/[id]',
                         params: { id: categoryId },
@@ -256,33 +248,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
   },
-  searchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  searchInput: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  searchLoader: {
-    position: 'absolute',
-    right: 15,
-    top: 10,
-  },
   section: {
     marginVertical: 10,
+    paddingHorizontal: 5,
   },
   sectionTitle: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     marginBottom: 10,
+    marginLeft: 5,
   },
   categoriesContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   listContent: {
     paddingBottom: 20,
