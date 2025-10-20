@@ -34,10 +34,11 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'SET_CART':
       // Ensure payload is an array before using reduce
       const items = Array.isArray(action.payload) ? action.payload : [];
+      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       return {
         ...state,
         items,
-        total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        total,
       };
 
     case 'ADD_TO_CART':
@@ -114,10 +115,7 @@ const CartContext = createContext<{
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState, () => {
-    // We'll load the cart data asynchronously in an effect below
-    return initialState;
-  });
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
   // Load cart from AsyncStorage on mount
   useEffect(() => {
@@ -128,11 +126,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           const parsedCart = JSON.parse(storedCart);
           // Ensure parsedCart is an array before dispatching
           if (Array.isArray(parsedCart)) {
+            // Calculate total when loading from storage
+            const total = parsedCart.reduce((sum: number, item: CartItem) =>
+              sum + item.price * item.quantity, 0);
+            // Set the cart with items and calculated total
             dispatch({ type: 'SET_CART', payload: parsedCart });
           }
         }
       } catch (error) {
         console.error('Error loading cart from AsyncStorage:', error);
+        // Don't reset the cart if there's an error loading from storage
       }
     };
 
@@ -143,14 +146,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const saveCart = async () => {
       try {
-        await AsyncStorage.setItem('cart', JSON.stringify(state));
+        await AsyncStorage.setItem('cart', JSON.stringify(state.items));
       } catch (error) {
         console.error('Error saving cart to AsyncStorage:', error);
       }
     };
 
     saveCart();
-  }, [state]);
+  }, [state.items]); // Only save items, not the entire state object
 
   const addToCart = (item: CartItem) => {
     dispatch({ type: 'ADD_TO_CART', payload: item });
