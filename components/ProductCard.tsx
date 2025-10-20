@@ -5,6 +5,7 @@ import { formatCurrency } from '@/lib/utils';
 import { FavoriteButton } from './FavoriteButton';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Product } from '@/types/api';
+import { useState } from 'react';
 
 export function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
@@ -61,15 +62,22 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   const imageSource = getImageSource();
+  const [imageError, setImageError] = useState(false);
 
   return (
     <Pressable onPress={handlePress} style={styles.card}>
       <View style={styles.imageContainer}>
-        {imageSource ? (
-          <Image source={imageSource} style={styles.image} resizeMode="cover" />
+        {imageSource && !imageError ? (
+          <Image
+            source={imageSource}
+            style={styles.image}
+            resizeMode="cover"
+            onError={() => setImageError(true)}
+            onLoad={() => setImageError(false)}
+          />
         ) : (
           <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderText}>No Image</Text>
+            <Text style={styles.placeholderText}>Sản Phẩm</Text>
           </View>
         )}
         <FavoriteButton
@@ -93,33 +101,42 @@ export function ProductCard({ product }: { product: Product }) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    margin: 10,
+    margin: 8,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
     maxWidth: '47%',
   },
   imageContainer: {
-    height: 150,
-    backgroundColor: '#f0f0f0',
+    height: 180,
+    backgroundColor: '#f8f8f8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    overflow: 'hidden',
+    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: 8,
   },
   placeholderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   placeholderText: {
-    color: '#999',
-    fontSize: 12,
+    color: '#aaa',
+    fontSize: 14,
+    fontWeight: '500',
   },
   content: {
     padding: 12,

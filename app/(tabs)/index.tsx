@@ -37,19 +37,19 @@ export default function HomeScreen() {
     {
       id: '1',
       image:
-        'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=400&fit=crop',
+        'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&h=400&fit=crop&q=85',
       title: 'Bộ sưu tập mới',
     },
     {
       id: '2',
       image:
-        'https://images.unsplash.com/photo-1563107725-66a28043325b?w=800&h=400&fit=crop',
+        'https://images.unsplash.com/photo-1563107725-66a28043325b?w=1000&h=400&fit=crop&q=85',
       title: 'Ưu đãi đặc biệt',
     },
     {
       id: '3',
       image:
-        'https://images.unsplash.com/photo-1599058917765-a780eda07f3b?w=800&h=400&fit=crop',
+        'https://images.unsplash.com/photo-1599058917765-a780eda07f3b?w=1000&h=400&fit=crop&q=85',
       title: 'Sản phẩm nổi bật',
     },
   ];
@@ -76,7 +76,7 @@ export default function HomeScreen() {
           name: 'Túi Xách Da Cổ Điển',
           price: 129.99,
           image:
-            'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop',
+            'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&q=80',
           category: 'Túi Xách',
         },
         {
@@ -84,7 +84,7 @@ export default function HomeScreen() {
           name: 'Túi Đeo Chéo Thiết Kế',
           price: 89.99,
           image:
-            'https://images.unsplash.com/photo-1563107725-66a28043325b?w=200&h=200&fit=crop',
+            'https://images.unsplash.com/photo-1563107725-66a28043325b?w=400&h=400&fit=crop&q=80',
           category: 'Đeo Chéo',
         },
       ]);
@@ -265,6 +265,7 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'space-between',
-    marginHorizontal: 10,
+    marginHorizontal: 8,
+    paddingHorizontal: 2,
   },
 });
