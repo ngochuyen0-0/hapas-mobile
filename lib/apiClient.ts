@@ -8,12 +8,18 @@ const getBaseUrl = () => {
   if (__DEV__) {
     // For Android emulator, use 10.0.2.2 to access host machine
     // For iOS simulator, use localhost
-    return Platform.OS === 'android' || Platform.OS === 'ios'
-      ? 'http://192.168.1.31:3000'
-      : 'http://localhost:3000';
+    if (__DEV__) {
+      // For Android emulator, use 10.0.2.2 to access host machine
+      // For iOS simulator, use localhost
+      return Platform.OS === 'android'
+        ? 'http://10.0.2.2:3000'
+        : 'http://localhost:3000'; // iOS simulator and web
+    }
+    // In production, use your actual domain
+    return 'http://localhost:3000';
   }
   // In production, use your actual domain
-  return 'http://192.168.1.31:3000';
+  return 'https://your-production-domain.com'; // Update this to your actual domain
 };
 
 const BASE_URL = getBaseUrl();
@@ -165,7 +171,7 @@ export const apiClient = {
         },
         body: JSON.stringify({ email, password }),
       });
-
+      console.log(response)
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
@@ -178,14 +184,14 @@ export const apiClient = {
     }
   },
 
-  async register(full_name: string, email: string, password: string) {
+  async register(full_name: string, email: string, password: string, phone?: string) {
     try {
       const response = await fetch(`${BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ full_name, email, password }),
+        body: JSON.stringify({ full_name, email, password, phone }),
       });
       const data = await response.json();
       if (!response.ok) {

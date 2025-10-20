@@ -22,13 +22,13 @@ export default function LoginScreen() {
       if (success) {
         router.push('/(tabs)');
       } else {
-        Alert.alert('Lỗi đăng nhập', 'Email hoặc mật khẩu không đúng');
+        Alert.alert('Lỗi đăng nhập', 'Email hoặc mật khẩu không đúng. Vui lòng thử lại!');
       }
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert(
         'Lỗi đăng nhập',
-        'Email hoặc mật khẩu không đúng. Vui lòng thử lại!',
+        'Đã xảy ra lỗi khi đăng nhập. Vui lòng kiểm tra kết nối mạng và thử lại!'
       );
     } finally {
       setLoading(false);

@@ -14,6 +14,7 @@ export default function SignUpScreen() {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
   });
 
   const validateEmail = (email: string): boolean => {
@@ -49,12 +50,19 @@ export default function SignUpScreen() {
       return;
     }
 
+    // Validate phone number if provided
+    if (userInfo.phone && !/^\d{10,11}$/.test(userInfo.phone)) {
+      Alert.alert('Thông báo', 'Số điện thoại không đúng định dạng (10-11 số)');
+      return;
+    }
+
     try {
       setLoading(true);
       const success = await register(
         userInfo.name,
         userInfo.email,
         userInfo.password,
+        userInfo.phone || undefined
       );
 
       if (success) {
@@ -93,6 +101,17 @@ export default function SignUpScreen() {
             value={userInfo.name}
             onChangeText={(value) => handleInputChange('name', value)}
             placeholder="Nhập họ và tên"
+          />
+        </ThemedView>
+
+        <ThemedView style={styles.inputGroup}>
+          <ThemedText style={styles.label}>Số Điện Thoại</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={userInfo.phone}
+            onChangeText={(value) => handleInputChange('phone', value)}
+            placeholder="Nhập số điện thoại"
+            keyboardType="phone-pad"
           />
         </ThemedView>
 

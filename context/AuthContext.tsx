@@ -21,7 +21,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string, phone?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           id: customer.id,
           full_name: customer.full_name,
           email: customer.email,
-          phone: customer.phone,
+          phone: customer.phone || undefined, // Ensure phone is handled properly
           address: customer.address,
         };
         await AsyncStorage.setItem('user', JSON.stringify(userToStore));
@@ -108,13 +108,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     full_name: string,
     email: string,
     password: string,
+    phone?: string,
   ): Promise<boolean> => {
     try {
-      const response = await apiClient.register(full_name, email, password);
+      const response = await apiClient.register(full_name, email, password, phone);
       if (response.success) {
         return true;
       } else {
-        console.error(response.errors);
+        console.error(response.message || response.errors);
         return false;
       }
     } catch (error) {
