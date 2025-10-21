@@ -63,8 +63,8 @@ export default function OrderHistoryScreen() {
           return orderStatus === 'processing';
         case 'đang giao':
           return orderStatus === 'shipped';
-        case 'đã giao':
-          return orderStatus === 'delivered';
+        case 'đã hoàn thành':
+          return orderStatus === 'delivered' || orderStatus === 'completed';
         case 'đã hủy':
           return orderStatus === 'cancelled';
         default:
@@ -113,7 +113,8 @@ export default function OrderHistoryScreen() {
           {renderOrderStatusTab('chờ xác nhận', 'Chờ XN')}
           {renderOrderStatusTab('đang xử lý', 'Đang XL')}
           {renderOrderStatusTab('đang giao', 'Đang Giao')}
-          {renderOrderStatusTab('đã giao', 'Đã Giao')}
+          {renderOrderStatusTab('đã hoàn thành', 'Đã Hoàn Thành')}
+          {renderOrderStatusTab('completed', 'Đã Hoàn Thành')}
           {renderOrderStatusTab('đã hủy', 'Đã Hủy')}
         </View>
       </ThemedView>
@@ -137,7 +138,9 @@ export default function OrderHistoryScreen() {
                     case 'shipped':
                       return 'Đang Giao';
                     case 'delivered':
-                      return 'Đã Giao';
+                      return 'Đã Hoàn Thành';
+                    case 'completed':
+                      return 'Đã Hoàn Thành';
                     case 'cancelled':
                       return 'Đã Hủy';
                     default:
@@ -148,6 +151,8 @@ export default function OrderHistoryScreen() {
                 const getStatusColor = (status: string) => {
                   switch (status) {
                     case 'delivered':
+                      return '#4CAF50';
+                    case 'completed':
                       return '#4CAF50';
                     case 'pending':
                       return '#FF9800';

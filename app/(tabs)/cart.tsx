@@ -20,8 +20,7 @@ export default function CartScreen() {
 
   const subtotal = cartState.total;
   const shipping = 0; // Free shipping
-  const tax = Math.round(subtotal * 0.08); // Round tax to whole number
-  const total = subtotal + shipping + tax;
+ const total = subtotal + shipping;
 
   const handleCheckout = () => {
     router.push('/checkout');
@@ -110,10 +109,6 @@ export default function CartScreen() {
             <ThemedView style={styles.summaryRow}>
               <ThemedText>Phí vận chuyển</ThemedText>
               <ThemedText>Miễn Phí</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.summaryRow}>
-              <ThemedText>Thuế</ThemedText>
-              <ThemedText>{formatVND(tax)}</ThemedText>
             </ThemedView>
             <ThemedView style={[styles.summaryRow, styles.totalRow]}>
               <ThemedText type="defaultSemiBold">Tổng cộng</ThemedText>

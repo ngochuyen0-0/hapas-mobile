@@ -7,7 +7,7 @@ interface ButtonProps {
   href?: string;
   disabled?: boolean;
   loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'light';
   style?: object;
 }
 
@@ -64,6 +64,7 @@ const getVariantColor = (variant: string, type: 'background' | 'text') => {
     primary: { background: '#000', text: '#fff' },
     secondary: { background: '#666', text: '#fff' },
     danger: { background: '#ff4444', text: '#fff' },
+    light: { background: '#fff0f5', text: '#000000' }, // nền hồng nhạt, chữ đen
   };
 
   return colors[variant as keyof typeof colors]?.[type] || colors.primary[type];

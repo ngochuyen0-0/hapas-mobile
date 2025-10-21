@@ -149,6 +149,8 @@ setOrders(a);
           return orderStatus === 'delivered';
         case 'cancelled':
           return orderStatus === 'cancelled';
+        case 'completed':
+          return orderStatus === 'completed';
         default:
           return false;
       }
@@ -269,10 +271,11 @@ setOrders(a);
         </ThemedText>
         <View style={styles.orderStatusTabs}>
           {renderOrderStatusTab('all', 'Tất Cả')}
-          {renderOrderStatusTab('pending', 'Chờ XN')}
-          {renderOrderStatusTab('processing', 'Đang XL')}
+          {renderOrderStatusTab('pending', 'Chờ Xác Nhận')}
+          {renderOrderStatusTab('processing', 'Đang Xử Lý')}
           {renderOrderStatusTab('shipped', 'Đang Giao')}
-          {renderOrderStatusTab('delivered', 'Đã Giao')}
+          {renderOrderStatusTab('delivered', 'Đã Hoàn Thành')}
+          {renderOrderStatusTab('completed', 'Đã Hoàn Thành')}
           {renderOrderStatusTab('cancelled', 'Đã Hủy')}
         </View>
 
@@ -349,17 +352,19 @@ setOrders(a);
                         {
                           color:
                             item.status === 'delivered' ? '#4CAF50' :
+                            item.status === 'completed' ? '#4CAF50' :
                             item.status === 'pending' ? '#FF9800' :
                             item.status === 'processing' ? '#2196F3' :
                             item.status === 'shipped' ? '#9C27B0' :
-                            item.status === 'cancelled' ? '#F44336' : '#9E9E9E',
+                            item.status === 'cancelled' ? '#F44336' : '#9E9E',
                         },
                       ]}
                     >
                       {item.status === 'pending' ? 'Chờ Xác Nhận' :
                        item.status === 'processing' ? 'Đang Xử Lý' :
                        item.status === 'shipped' ? 'Đang Giao' :
-                       item.status === 'delivered' ? 'Đã Giao' :
+                       item.status === 'delivered' ? 'Đã Hoàn Thành' :
+                       item.status === 'completed' ? 'Đã Hoàn Thành' :
                        item.status === 'cancelled' ? 'Đã Hủy' : item.status}
                     </ThemedText>
                   </ThemedView>

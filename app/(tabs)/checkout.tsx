@@ -201,8 +201,7 @@ export default function CheckoutScreen() {
 
   const subtotal = cartState.total;
   const shipping = 0; // Free shipping
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+  const total = subtotal + shipping;
 
   return (
     <ScrollView
@@ -553,10 +552,6 @@ export default function CheckoutScreen() {
         <ThemedView style={styles.summaryRow}>
           <ThemedText>Vận Chuyển</ThemedText>
           <ThemedText>Miễn phí</ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.summaryRow}>
-          <ThemedText>Thuế</ThemedText>
-          <ThemedText>{tax.toLocaleString('vi-VN')}₫</ThemedText>
         </ThemedView>
         <ThemedView style={[styles.summaryRow, styles.totalRow]}>
           <ThemedText type="defaultSemiBold">Tổng Cộng</ThemedText>

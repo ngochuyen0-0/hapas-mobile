@@ -69,6 +69,7 @@ export default function OrderConfirmationScreen() {
         <Button
           title="Tiếp Tục Mua Sắm"
           href="/"
+          variant="light"
           style={[styles.button, { marginBottom: getTabBarHeight() + 20 }]}
         />
       </ThemedView>
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: '#fff0f5', // màu hồng nhạt hơn (lavender blush)
   },
   content: {
     alignItems: 'center',
@@ -88,27 +90,34 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 20,
     textAlign: 'center',
+    color: '#000000', // màu đen cho tiêu đề
   },
   message: {
     textAlign: 'center',
     marginBottom: 30,
     lineHeight: 22,
+    color: '#000000', // màu đen cho thông báo
   },
   orderDetails: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff0f5', // màu hồng nhạt hơn
     padding: 20,
     borderRadius: 8,
     width: '100%',
     marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#ffe0e5', // viền hồng nhạt hơn
   },
   detailLabel: {
     fontWeight: 'bold',
     marginTop: 10,
+    color: '#000000', // màu đen cho nhãn
   },
   detailValue: {
     marginTop: 5,
+    color: '#000000', // màu đen cho giá trị
   },
   button: {
     width: '100%',
+    backgroundColor: '#fff0f5', // màu hồng nhạt hơn cho nút
   },
 });

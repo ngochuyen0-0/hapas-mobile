@@ -60,6 +60,7 @@ export default function LoginScreen() {
             value={credentials.email}
             onChangeText={(value) => handleInputChange('email', value)}
             placeholder="Nhập email của bạn"
+            placeholderTextColor="#999" // Gray placeholder text
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -72,6 +73,7 @@ export default function LoginScreen() {
             value={credentials.password}
             onChangeText={(value) => handleInputChange('password', value)}
             placeholder="Nhập mật khẩu"
+            placeholderTextColor="#999" // Gray placeholder text
             secureTextEntry
           />
         </ThemedView>
@@ -106,18 +108,28 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: '#fff', // White background
   },
   title: {
     textAlign: 'center',
     marginBottom: 10,
-  },
+    color: '#000', // Black color for title
+ },
   subtitle: {
     textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
+    color: '#333', // Dark gray for subtitle
   },
   form: {
     marginBottom: 30,
+    backgroundColor: '#ffffff', // White background form
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   inputGroup: {
     marginBottom: 20,
@@ -125,27 +137,28 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 8,
     fontWeight: 'bold',
-  },
+    color: '#000', // Black color for labels
+ },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ddd', // Gray border
     borderRadius: 8,
     padding: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff', // White background for inputs
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#FFB6C1', // Light pink login button matching signup
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   disabledButton: {
-    backgroundColor: '#666',
+    backgroundColor: '#FFB6C1', // Light pink for disabled state matching signup
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#fff', // White text for better visibility on light pink button
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -154,7 +167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   forgotPasswordText: {
-    color: '#007AFF',
+    color: '#FFB6C1', // Light pink for forgot password matching signup
     fontWeight: 'bold',
   },
   signupContainer: {
@@ -162,7 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   signupText: {
-    color: '#007AFF',
+    color: '#FFB6C1', // Light pink for signup text matching signup
     fontWeight: 'bold',
   },
 });
