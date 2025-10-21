@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Mock slider data - in a real app, this would come from an API
   const sliderData = [
@@ -61,40 +62,22 @@ export default function HomeScreen() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      console.log('🔄 Đang tải dữ liệu sản phẩm...');
+      
       const [productsData, categoriesData] = await Promise.all([
         apiClient.getProducts(),
         apiClient.getCategories(),
       ]);
+      
+      console.log(`✅ Đã tải ${productsData.length} sản phẩm và ${categoriesData.length} danh mục`);
       setProducts(productsData);
       setCategories(categoriesData);
     } catch (error) {
-      console.error('Lỗi khi tải dữ liệu:', error);
-      // Fallback to mock data in case of error
-      setProducts([
-        {
-          id: '1',
-          name: 'Túi Xách Da Cổ Điển',
-          price: 129.99,
-          image:
-            'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&q=80',
-          category: 'Túi Xách',
-        },
-        {
-          id: '2',
-          name: 'Túi Đeo Chéo Thiết Kế',
-          price: 89.99,
-          image:
-            'https://images.unsplash.com/photo-1563107725-66a28043325b?w=400&h=400&fit=crop&q=80',
-          category: 'Đeo Chéo',
-        },
-      ]);
-
-      setCategories([
-        { id: '1', name: 'Túi Xách' },
-        { id: '2', name: 'Đeo Chéo' },
-        { id: '3', name: 'Ví Da' },
-        { id: '4', name: 'Phụ Kiện' },
-      ]);
+      console.error('❌ Lỗi khi tải dữ liệu:', error);
+      setError('Không thể tải dữ liệu sản phẩm. Vui lòng thử lại.');
+      setProducts([]);
+      setCategories([]);
     } finally {
       setLoading(false);
       setFilteredProducts(products); // Initialize filtered products with all products
@@ -109,6 +92,10 @@ export default function HomeScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchData().then(() => setRefreshing(false));
+  };
+
+  const retryFetch = () => {
+    fetchData();
   };
 
   const handleSearch = async (query: string) => {
@@ -142,6 +129,17 @@ export default function HomeScreen() {
       <ThemedView style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
         <ThemedText style={styles.loadingText}>Đang tải dữ liệu...</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  if (error) {
+    return (
+      <ThemedView style={styles.centerContainer}>
+        <ThemedText style={styles.errorText}>{error}</ThemedText>
+        <ThemedText style={styles.retryButton} onPress={retryFetch}>
+          Thử lại
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -267,5 +265,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 8,
     paddingHorizontal: 2,
+  },
+  errorText: {
+    color: '#ff4444',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontSize: 16,
+  },
+  retryButton: {
+    color: '#007AFF',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
 });

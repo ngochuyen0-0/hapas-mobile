@@ -11,42 +11,61 @@ import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/lib/apiClient';
+import { Order } from '@/types/api';
 
 export default function OrderHistoryScreen() {
   const { status } = useLocalSearchParams();
   const router = useRouter();
-  const [orders, setOrders] = useState<any[]>([]);
+  const { token, user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeOrderStatus, setActiveOrderStatus] = useState<string>(
     (status as string) || 'all',
   );
 
   useEffect(() => {
-    // Mock data for orders
-    setOrders([
-      { id: 'ORD-01', date: '2023-06-15', total: 129000, status: 'Đã Giao' },
-      { id: 'ORD-002', date: '2023-06-10', total: 89000, status: 'Đã Giao' },
-      {
-        id: 'ORD-003',
-        date: '2023-06-05',
-        total: 199000,
-        status: 'Đang Xử Lý',
-      },
-      {
-        id: 'ORD-004',
-        date: '2023-06-01',
-        total: 75000,
-        status: 'Chờ Xác Nhận',
-      },
-      { id: 'ORD-005', date: '2023-05-28', total: 210000, status: 'Đang Giao' },
-      { id: 'ORD-006', date: '2023-05-20', total: 85000, status: 'Đã Hủy' },
-    ]);
-  }, []);
+    const loadOrders = async () => {
+      if (!token || !user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const ordersData = await apiClient.getOrders(token);
+        setOrders(ordersData);
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        Alert.alert('Lỗi', 'Không thể tải lịch sử đơn hàng');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrders();
+  }, [token, user]);
 
   const getOrdersByStatus = (status: string) => {
     if (status === 'all') return orders;
-    return orders.filter((order) =>
-      order.status.toLowerCase().includes(status.toLowerCase()),
-    );
+    return orders.filter((order) => {
+      const orderStatus = order.status.toLowerCase();
+      switch (status) {
+        case 'chờ xác nhận':
+          return orderStatus === 'pending';
+        case 'đang xử lý':
+          return orderStatus === 'processing';
+        case 'đang giao':
+          return orderStatus === 'shipped';
+        case 'đã giao':
+          return orderStatus === 'delivered';
+        case 'đã hủy':
+          return orderStatus === 'cancelled';
+        default:
+          return false;
+      }
+    });
   };
 
   const renderOrderStatusTab = (status: string, title: string) => (
@@ -96,53 +115,95 @@ export default function OrderHistoryScreen() {
 
       {/* Orders List */}
       <ThemedView style={styles.section}>
-        <FlatList
-          data={getOrdersByStatus(activeOrderStatus)}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Pressable
-              style={styles.orderRow}
-              onPress={() =>
-                Alert.alert('Chi tiết đơn hàng', `Mã đơn hàng: ${item.id}`)
-              }
-            >
-              <ThemedView>
-                <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
-                <ThemedText style={styles.orderDate}>{item.date}</ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.orderRight}>
-                <ThemedText>
-                  {typeof item.total === 'number'
-                    ? item.total.toLocaleString('vi-VN') + '₫'
-                    : item.total}
-                </ThemedText>
-                <ThemedText
-                  style={[
-                    styles.orderStatus,
-                    {
-                      color: item.status.includes('Giao')
-                        ? '#4CAF50'
-                        : item.status.includes('Xác Nhận')
-                          ? '#FF9800'
-                          : item.status.includes('Xử Lý')
-                            ? '#2196F3'
-                            : item.status.includes('Hủy')
-                              ? '#F44336'
-                              : '#9E9E9E',
-                    },
-                  ]}
-                >
-                  {item.status}
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
-          )}
-        />
+        {loading ? (
+          <ThemedText style={styles.loadingText}>Đang tải...</ThemedText>
+        ) : (
+          <>
+            <FlatList
+              data={getOrdersByStatus(activeOrderStatus)}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => {
+                const getStatusText = (status: string) => {
+                  switch (status) {
+                    case 'pending':
+                      return 'Chờ Xác Nhận';
+                    case 'processing':
+                      return 'Đang Xử Lý';
+                    case 'shipped':
+                      return 'Đang Giao';
+                    case 'delivered':
+                      return 'Đã Giao';
+                    case 'cancelled':
+                      return 'Đã Hủy';
+                    default:
+                      return status;
+                  }
+                };
 
-        {getOrdersByStatus(activeOrderStatus).length === 0 && (
-          <ThemedText style={styles.noOrdersText}>
-            Không có đơn hàng nào
-          </ThemedText>
+                const getStatusColor = (status: string) => {
+                  switch (status) {
+                    case 'delivered':
+                      return '#4CAF50';
+                    case 'pending':
+                      return '#FF9800';
+                    case 'processing':
+                      return '#2196F3';
+                    case 'shipped':
+                      return '#9C27B0';
+                    case 'cancelled':
+                      return '#F44336';
+                    default:
+                      return '#9E9E9E';
+                  }
+                };
+
+                return (
+                  <Pressable
+                    style={styles.orderRow}
+                    onPress={() =>
+                      Alert.alert(
+                        'Chi tiết đơn hàng',
+                        `Mã đơn hàng: ${item.id}\nTổng tiền: ${item.total_amount.toLocaleString('vi-VN')}₫\nTrạng thái: ${getStatusText(item.status)}${item.payment ? `\nPhương thức: ${item.payment.payment_method}` : ''}`
+                      )
+                    }
+                  >
+                    <ThemedView>
+                      <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
+                      <ThemedText style={styles.orderDate}>
+                        {new Date(item.order_date).toLocaleDateString('vi-VN')}
+                      </ThemedText>
+                      {item.payment && (
+                        <ThemedText style={styles.paymentMethod}>
+                          {item.payment.payment_method}
+                        </ThemedText>
+                      )}
+                    </ThemedView>
+                    <ThemedView style={styles.orderRight}>
+                      <ThemedText>
+                        {item.total_amount.toLocaleString('vi-VN')}₫
+                      </ThemedText>
+                      <ThemedText
+                        style={[
+                          styles.orderStatus,
+                          {
+                            color: getStatusColor(item.status),
+                          },
+                        ]}
+                      >
+                        {getStatusText(item.status)}
+                      </ThemedText>
+                    </ThemedView>
+                  </Pressable>
+                );
+              }}
+            />
+
+            {getOrdersByStatus(activeOrderStatus).length === 0 && (
+              <ThemedText style={styles.noOrdersText}>
+                Không có đơn hàng nào
+              </ThemedText>
+            )}
+          </>
         )}
       </ThemedView>
     </ThemedView>
@@ -235,9 +296,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
   },
+  paymentMethod: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
   noOrdersText: {
     textAlign: 'center',
     color: '#666',
     paddingVertical: 20,
+  },
+  loadingText: {
+    textAlign: 'center',
+    color: '#666',
+    paddingVertical: 20,
+    fontSize: 16,
   },
 });

@@ -4,7 +4,7 @@ import { Product, AuthResponse, User, Order, Category } from '@/types/api';
 // Determine the base URL for API calls
 const getBaseUrl = () => {
   // When running on emulator/simulator, we need to use the host machine's IP
-  // For production, you would use your actual API domain
+ // For production, you would use your actual API domain
   if (__DEV__) {
     // For Android emulator, use 10.0.2.2 to access host machine
     // For iOS simulator, use localhost
@@ -42,7 +42,8 @@ export const apiClient = {
   // Fetch all products (public endpoint)
   async getProducts(): Promise<Product[]> {
     try {
-      const response = await fetch(`${BASE_URL}/api/public/products`);
+      // Request all products by setting a high limit
+      const response = await fetch(`${BASE_URL}/api/public/products?limit=1000`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -241,7 +242,15 @@ export const apiClient = {
         throw new Error(data.message || 'Failed to fetch orders');
       }
 
-      return data.orders || [];
+      // Map the response to ensure proper structure
+      const orders = data.orders || [];
+      
+      return orders.map((order: any) => ({
+        ...order,
+        user_id: order.customer_id, // Map customer_id to user_id for consistency
+        items: order.order_items, // Map order_items to items
+        total_amount: Number(order.total_amount), // Ensure total_amount is a number
+      }));
     } catch (error) {
       console.error('Error fetching orders:', error);
       throw error;
@@ -263,7 +272,7 @@ export const apiClient = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to create order');
+        throw new Error(data.message || data.error || 'Failed to create order');
       }
 
       return data;

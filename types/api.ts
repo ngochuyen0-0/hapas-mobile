@@ -50,7 +50,10 @@ export interface Order {
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   order_date: string;
   shipping_address?: string;
+  billing_address?: string;
+  note?: string;
   items?: OrderItem[];
+  payment?: Payment;
 }
 
 export interface OrderItem {
@@ -60,6 +63,16 @@ export interface OrderItem {
   quantity: number;
   price: number;
   product?: Product;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  payment_method: string;
+  transaction_id?: string;
+  status: string;
+  amount: number;
+  payment_date: string;
 }
 
 export interface CartItem {

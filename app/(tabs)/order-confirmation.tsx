@@ -6,8 +6,11 @@ import { getTabBarHeight } from '@/components/CustomTabBar';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function OrderConfirmationScreen() {
-  const params = useLocalSearchParams();
-  const { orderId, orderDate, totalAmount } = params;
+ const params = useLocalSearchParams();
+  const { orderId, orderDate, totalAmount, paymentMethod, shippingInfo } = params;
+  
+  // Parse shipping info if it's a JSON string
+  const parsedShippingInfo = typeof shippingInfo === 'string' ? JSON.parse(shippingInfo) : shippingInfo;
 
   return (
     <ThemedView style={styles.container}>
@@ -33,8 +36,26 @@ export default function OrderConfirmationScreen() {
 
           <ThemedText style={styles.detailLabel}>Tổng Cộng:</ThemedText>
           <ThemedText style={styles.detailValue}>
-            ${totalAmount || '0.00'}
+            {totalAmount ? Number(totalAmount).toLocaleString('vi-VN') + '₫' : '0₫'}
           </ThemedText>
+          
+          {paymentMethod && (
+            <>
+              <ThemedText style={styles.detailLabel}>Phương Thức Thanh Toán:</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {paymentMethod}
+              </ThemedText>
+            </>
+          )}
+          
+          {parsedShippingInfo && (
+            <>
+              <ThemedText style={styles.detailLabel}>Thông Tin Giao Hàng:</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {parsedShippingInfo.fullName}, {parsedShippingInfo.phoneNumber}, {parsedShippingInfo.address}, {parsedShippingInfo.province}, {parsedShippingInfo.district}, {parsedShippingInfo.commune}
+              </ThemedText>
+            </>
+          )}
         </ThemedView>
 
         <Button
@@ -55,7 +76,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-  },
+ },
   title: {
     marginBottom: 20,
     textAlign: 'center',

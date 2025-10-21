@@ -135,8 +135,16 @@ export default function CheckoutScreen() {
 
     // Check if user is logged in
     if (!token) {
-      Alert.alert('Thông báo', 'Vui lòng đăng nhập để đặt hàng');
-      router.push('/login');
+      Alert.alert('Thông báo', 'Vui lòng đăng nhập để đặt hàng', [
+        {
+          text: 'Đăng nhập',
+          onPress: () => router.push('/login'),
+        },
+        {
+          text: 'Hủy',
+          style: 'cancel',
+        },
+      ]);
       return;
     }
 
@@ -148,12 +156,12 @@ export default function CheckoutScreen() {
         items: cartState.items.map((item) => ({
           product_id: item.id,
           quantity: item.quantity,
-          unit_price: item.price, // Changed from 'price' to 'unit_price'
+          unit_price: item.price,
         })),
         shipping_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
-        total_amount: cartState.total + 9.99 + cartState.total * 0.08,
-        payment_method:
-          paymentMethod === 'card' ? 'credit_debit' : paymentMethod,
+        billing_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
+        payment_method: paymentMethod, // Include payment method in order data
+        note: shippingInfo.note, // Include the note in order data
       };
 
       // Create order
@@ -168,7 +176,7 @@ export default function CheckoutScreen() {
         params: {
           orderId: response.order?.id || 'ORD-' + Date.now(),
           orderDate: new Date().toLocaleDateString('vi-VN'),
-          totalAmount: orderData.total_amount.toFixed(2),
+          totalAmount: response.order?.total_amount?.toString() || cartState.total.toString(),
           paymentMethod:
             paymentMethod === 'card'
               ? 'Thẻ Tín Dụng/Ghi Nợ'
