@@ -7,10 +7,18 @@ import { useLocalSearchParams } from 'expo-router';
 
 export default function OrderConfirmationScreen() {
  const params = useLocalSearchParams();
-  const { orderId, orderDate, totalAmount, paymentMethod, shippingInfo } = params;
-  
-  // Parse shipping info if it's a JSON string
-  const parsedShippingInfo = typeof shippingInfo === 'string' ? JSON.parse(shippingInfo) : shippingInfo;
+ const { orderId, orderDate, totalAmount, paymentMethod, shippingInfo } = params;
+ 
+ // Helper function to get string value from params (which can be string or string[])
+ const getStringParam = (param: string | string[] | undefined): string | undefined => {
+   if (Array.isArray(param)) {
+     return param[0];
+   }
+   return param;
+ };
+ 
+ // Parse shipping info if it's a JSON string
+ const parsedShippingInfo = typeof getStringParam(shippingInfo) === 'string' ? JSON.parse(getStringParam(shippingInfo)!) : shippingInfo;
 
   return (
     <ThemedView style={styles.container}>
@@ -26,24 +34,24 @@ export default function OrderConfirmationScreen() {
         <ThemedView style={styles.orderDetails}>
           <ThemedText style={styles.detailLabel}>Số Đơn Hàng:</ThemedText>
           <ThemedText style={styles.detailValue}>
-            #{orderId || 'ORD-' + Date.now()}
+            #{getStringParam(orderId) || 'ORD-' + Date.now()}
           </ThemedText>
 
           <ThemedText style={styles.detailLabel}>Ngày Đặt Hàng:</ThemedText>
           <ThemedText style={styles.detailValue}>
-            {orderDate || new Date().toLocaleDateString('vi-VN')}
+            {getStringParam(orderDate) ? new Date(getStringParam(orderDate)!).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN')}
           </ThemedText>
 
           <ThemedText style={styles.detailLabel}>Tổng Cộng:</ThemedText>
           <ThemedText style={styles.detailValue}>
-            {totalAmount ? Number(totalAmount).toLocaleString('vi-VN') + '₫' : '0₫'}
+            {getStringParam(totalAmount) ? Number(getStringParam(totalAmount)!).toLocaleString('vi-VN') + '₫' : '0₫'}
           </ThemedText>
           
-          {paymentMethod && (
+          {getStringParam(paymentMethod) && (
             <>
               <ThemedText style={styles.detailLabel}>Phương Thức Thanh Toán:</ThemedText>
               <ThemedText style={styles.detailValue}>
-                {paymentMethod}
+                {getStringParam(paymentMethod)}
               </ThemedText>
             </>
           )}

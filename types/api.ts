@@ -45,7 +45,7 @@ export interface User {
 
 export interface Order {
   id: string;
-  user_id: string;
+  customer_id: string;
   total_amount: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   order_date: string;

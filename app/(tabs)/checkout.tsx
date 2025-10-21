@@ -159,9 +159,8 @@ export default function CheckoutScreen() {
           unit_price: item.price,
         })),
         shipping_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
-        billing_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`,
-        payment_method: paymentMethod, // Include payment method in order data
-        note: shippingInfo.note, // Include the note in order data
+        billing_address: `${shippingInfo.fullName}, ${shippingInfo.phoneNumber}, ${shippingInfo.address}, ${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.commune}, ${shippingInfo.zipCode}`, // Add billing_address
+        note: shippingInfo.note || null,
       };
 
       // Create order
@@ -174,9 +173,9 @@ export default function CheckoutScreen() {
       router.push({
         pathname: '/order-confirmation',
         params: {
-          orderId: response.order?.id || 'ORD-' + Date.now(),
-          orderDate: new Date().toLocaleDateString('vi-VN'),
-          totalAmount: response.order?.total_amount?.toString() || cartState.total.toString(),
+          orderId: response.order?.id,
+          orderDate: response.order?.order_date || new Date().toISOString(),
+          totalAmount: response.order?.total_amount?.toString(),
           paymentMethod:
             paymentMethod === 'card'
               ? 'Thẻ Tín Dụng/Ghi Nợ'

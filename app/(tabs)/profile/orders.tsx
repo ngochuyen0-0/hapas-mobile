@@ -160,23 +160,26 @@ export default function OrderHistoryScreen() {
                 return (
                   <Pressable
                     style={styles.orderRow}
-                    onPress={() =>
-                      Alert.alert(
-                        'Chi tiết đơn hàng',
-                        `Mã đơn hàng: ${item.id}\nTổng tiền: ${item.total_amount.toLocaleString('vi-VN')}₫\nTrạng thái: ${getStatusText(item.status)}${item.payment ? `\nPhương thức: ${item.payment.payment_method}` : ''}`
-                      )
-                    }
+                    onPress={() => {
+                      // Show more detailed order information
+                      const orderDetails = [
+                        `Mã đơn hàng: ${item.id}`,
+                        `Ngày đặt: ${new Date(item.order_date).toLocaleDateString('vi-VN')}`,
+                        `Tổng tiền: ${item.total_amount.toLocaleString('vi-VN')}₫`,
+                        `Trạng thái: ${getStatusText(item.status)}`,
+                        `Ghi chú: ${item.note || 'Không có ghi chú'}`
+                      ].join('\n\n');
+                      
+                      Alert.alert('Chi tiết đơn hàng', orderDetails, [
+                        { text: 'OK' }
+                      ]);
+                    }}
                   >
                     <ThemedView>
                       <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
                       <ThemedText style={styles.orderDate}>
                         {new Date(item.order_date).toLocaleDateString('vi-VN')}
                       </ThemedText>
-                      {item.payment && (
-                        <ThemedText style={styles.paymentMethod}>
-                          {item.payment.payment_method}
-                        </ThemedText>
-                      )}
                     </ThemedView>
                     <ThemedView style={styles.orderRight}>
                       <ThemedText>
@@ -295,11 +298,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     fontWeight: '500',
-  },
-  paymentMethod: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 2,
   },
   noOrdersText: {
     textAlign: 'center',
