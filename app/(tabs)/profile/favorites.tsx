@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f9f9',
+    backgroundColor: '#fdf0f0',
   },
   header: {
     flexDirection: 'row',
@@ -98,29 +98,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#d8a7a7',
   },
   favoriteItem: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#f8c6c6',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   productImage: {
     width: 80,
     height: 80,
     borderRadius: 8,
     marginRight: 15,
+    borderWidth: 1,
+    borderColor: '#f5c6c6',
   },
   productInfo: {
     flex: 1,
@@ -128,13 +130,13 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#c77d7d',
     marginBottom: 5,
   },
   productPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#e74c3c',
+    color: '#d8a7a7',
     marginBottom: 5,
   },
   ratingContainer: {
@@ -143,11 +145,11 @@ const styles = StyleSheet.create({
   },
   rating: {
     fontSize: 12,
-    color: '#f39c12',
+    color: '#e2b8b8',
   },
   removeButton: {
     padding: 8,
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#f5c6c6',
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   removeButtonText: {
-    color: '#fff',
+    color: '#c77d7d',
     fontWeight: 'bold',
   },
   emptyContainer: {
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#777',
+    color: '#d8a7a7',
     fontStyle: 'italic',
   },
 });

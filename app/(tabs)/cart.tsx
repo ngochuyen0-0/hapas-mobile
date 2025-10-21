@@ -136,29 +136,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#fff0f5', // Light pink background
   },
   title: {
     marginBottom: 20,
+    color: '#000000', // Black color for title
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff0f5', // Light pink background
   },
   itemsContainer: {
     flex: 1,
+    backgroundColor: '#fff0f5', // Light pink background
   },
   cartItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#ffc0cb', // Light pink border
+    backgroundColor: '#ffffff', // White background for items
+    borderRadius: 8,
+    marginVertical: 5,
+    elevation: 2,
+    shadowColor: '#00',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   itemImageContainer: {
     width: 60,
     height: 60,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f8c6d0', // Light pink shade for image container
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -170,7 +185,7 @@ const styles = StyleSheet.create({
   },
   itemImagePlaceholder: {
     fontSize: 10,
-    color: '#999',
+    color: '#000000', // Black color
   },
   itemDetails: {
     flex: 1,
@@ -178,7 +193,8 @@ const styles = StyleSheet.create({
   },
   itemPrice: {
     marginTop: 4,
-    color: '#666',
+    color: '#000000', // Black color for price
+    fontWeight: 'bold',
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -190,17 +206,20 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#ffc0cb', // Light pink button
     borderRadius: 15,
   },
   quantityButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#000000', // Black color for button text
   },
   quantity: {
     marginHorizontal: 10,
     minWidth: 20,
     textAlign: 'center',
+    color: '#000000', // Black color for quantity text
+    fontWeight: 'bold',
   },
   itemActions: {
     alignItems: 'flex-end',
@@ -209,39 +228,57 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     minWidth: 60,
     textAlign: 'right',
+    color: '#000000', // Black color for total
   },
   removeButton: {
     marginTop: 5,
   },
   removeButtonText: {
-    color: '#ff4444',
+    color: '#000000', // Black for remove button
     fontSize: 12,
+    fontWeight: 'bold',
   },
   summaryContainer: {
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#ffc0cb', // Light pink border
     paddingTop: 20,
+    backgroundColor: '#fff0f5', // Light pink background
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    paddingVertical: 5,
   },
   totalRow: {
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#ffc0cb', // Light pink border
+    backgroundColor: '#ffe0e6', // Slightly darker pink for total row
+    borderRadius: 5,
   },
   checkoutButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#ffc0cb', // Light pink background for checkout button
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   checkoutButtonText: {
-    color: '#fff',
+    color: '#000000', // Black text
     fontWeight: 'bold',
     fontSize: 16,
   },

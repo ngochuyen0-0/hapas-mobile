@@ -44,13 +44,13 @@ export default function HomeScreen() {
     {
       id: '2',
       image:
-        'https://images.unsplash.com/photo-1563107725-66a28043325b?w=1000&h=400&fit=crop&q=85',
+        'https://cdn.hstatic.net/files/200000978078/collection/web_2b5da6e8a6c74c7f84c260a11e583759.png',
       title: 'Ưu đãi đặc biệt',
     },
     {
       id: '3',
       image:
-        'https://images.unsplash.com/photo-1599058917765-a780eda07f3b?w=1000&h=400&fit=crop&q=85',
+        'https://down-vn.img.susercontent.com/file/vn-11134207-7ras8-m2sedlxtuzlma4',
       title: 'Sản phẩm nổi bật',
     },
   ];

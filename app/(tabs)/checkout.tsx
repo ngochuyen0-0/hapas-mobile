@@ -55,7 +55,7 @@ export default function CheckoutScreen() {
   const [searchDistrict, setSearchDistrict] = useState('');
   const [searchCommune, setSearchCommune] = useState('');
 
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank' | 'card'>(
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank'>(
     'cod',
   );
 
@@ -177,11 +177,9 @@ export default function CheckoutScreen() {
           orderDate: response.order?.order_date || new Date().toISOString(),
           totalAmount: response.order?.total_amount?.toString(),
           paymentMethod:
-            paymentMethod === 'card'
-              ? 'Thẻ Tín Dụng/Ghi Nợ'
-              : paymentMethod === 'cod'
-                ? 'COD'
-                : 'Chuyển khoản',
+            paymentMethod === 'cod'
+              ? 'COD'
+              : 'Chuyển khoản',
           shippingInfo: JSON.stringify({
             fullName: shippingInfo.fullName,
             phoneNumber: shippingInfo.phoneNumber,
@@ -525,56 +523,21 @@ export default function CheckoutScreen() {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              paymentMethod === 'card' && styles.selectedPaymentOption,
-            ]}
-            onPress={() => setPaymentMethod('card')}
-          >
-            <View style={styles.paymentOptionContent}>
-              <Text style={styles.paymentOptionIcon}>💳</Text>
-              <ThemedText style={styles.paymentOptionText}>
-                Thẻ Tín Dụng/Ghi Nợ
-              </ThemedText>
-              <View
-                style={[
-                  styles.paymentSelectionIndicator,
-                  paymentMethod === 'card' &&
-                    styles.paymentSelectionIndicatorSelected,
-                ]}
-              >
-                {paymentMethod === 'card' && (
-                  <View style={styles.paymentSelectionIndicatorInner} />
-                )}
-              </View>
-            </View>
-          </TouchableOpacity>
         </ThemedView>
 
-        {(paymentMethod === 'bank' || paymentMethod === 'card') && (
+        {paymentMethod === 'bank' && (
           <ThemedView style={styles.bankInfo}>
-            {paymentMethod === 'bank' ? (
-              <>
-                <ThemedText style={styles.bankInfoTitle}>
-                  Thông Tin Chuyển Khoản
-                </ThemedText>
-                <ThemedText>Ngân hàng: Vietcombank</ThemedText>
-                <ThemedText>Số tài khoản: 1234 5678 9012</ThemedText>
-                <ThemedText>Chủ tài khoản: CÔNG TY HAPAS</ThemedText>
-                <ThemedText>
-                  Nội dung: HAPAS_{shippingInfo.fullName || 'Mã đơn hàng'}
-                </ThemedText>
-              </>
-            ) : (
-              <>
-                <ThemedText style={styles.bankInfoTitle}>
-                  Thông Tin Thẻ
-                </ThemedText>
-                <ThemedText>Nhập thông tin thẻ của bạn</ThemedText>
-                <ThemedText>Số thẻ, ngày hết hạn, CVV</ThemedText>
-              </>
-            )}
+            <>
+              <ThemedText style={styles.bankInfoTitle}>
+                Thông Tin Chuyển Khoản
+              </ThemedText>
+              <ThemedText>Ngân hàng: Vietcombank</ThemedText>
+              <ThemedText>Số tài khoản: 1234 5678 9012</ThemedText>
+              <ThemedText>Chủ tài khoản: CÔNG TY HAPAS</ThemedText>
+              <ThemedText>
+                Nội dung: HAPAS_{shippingInfo.fullName || 'Mã đơn hàng'}
+              </ThemedText>
+            </>
           </ThemedView>
         )}
       </ThemedView>
@@ -623,12 +586,17 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 20,
+    color: '#000', // Black
   },
   section: {
     marginBottom: 30,
+    backgroundColor: '#fff0f5', // Light pink background for sections
+    padding: 15,
+    borderRadius: 10,
   },
   sectionTitle: {
     marginBottom: 15,
+    color: '#000', // Black
   },
   inputGroup: {
     marginBottom: 15,
@@ -636,13 +604,14 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 5,
     fontWeight: 'bold',
+    color: '#000', // Black
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ffc0cb', // Light pink border
     borderRadius: 8,
     padding: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff5f7', // Light pink background
     fontSize: 16,
   },
   row: {
@@ -660,10 +629,10 @@ const styles = StyleSheet.create({
   paymentOption: {
     padding: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ffc0cb', // Light pink
     borderRadius: 12,
     marginBottom: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff5f7', // Light pink background
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -671,13 +640,14 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   selectedPaymentOption: {
-    borderColor: '#007AFF',
-    backgroundColor: '#e6f0ff',
+    borderColor: '#FF69B4', // Light pink
+    backgroundColor: '#ffe4e9', // Lighter pink
     borderWidth: 2,
   },
   paymentOptionText: {
     fontSize: 16,
     flex: 1,
+    color: '#000', // Black
   },
   paymentOptionContent: {
     flexDirection: 'row',
@@ -686,10 +656,10 @@ const styles = StyleSheet.create({
   },
   bankInfo: {
     padding: 15,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: '#fff0f5', // Light pink background
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#cce6ff',
+    borderColor: '#ffc0cb', // Light pink
   },
   bankInfoTitle: {
     fontWeight: 'bold',
@@ -709,17 +679,18 @@ const styles = StyleSheet.create({
   },
   placeOrderButton: {
     marginTop: 20,
+    backgroundColor: '#ffc0cb', // Light pink
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(255,105,180,0.5)', // Light pink with transparency
   },
   modalContent: {
     width: '90%',
     maxHeight: '70%',
-    backgroundColor: 'white',
+    backgroundColor: '#fff0f5', // Light pink background
     borderRadius: 10,
     padding: 20,
   },
@@ -729,16 +700,18 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ffc0cb', // Light pink
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
     fontSize: 16,
+    backgroundColor: '#fff5f7', // Light pink background
   },
   modalItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#ffc0cb', // Light pink
+    backgroundColor: '#fff5f7', // Light pink background
   },
   modalList: {
     maxHeight: 300,
@@ -756,14 +729,14 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#ccc',
+    borderColor: '#ffc0cb', // Light pink
     marginLeft: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   paymentSelectionIndicatorSelected: {
-    backgroundColor: '#07AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#FF69B4', // Light pink
+    borderColor: '#FF69B4', // Light pink
   },
   paymentSelectionIndicatorInner: {
     width: 8,

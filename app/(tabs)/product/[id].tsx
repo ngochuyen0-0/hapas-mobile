@@ -246,12 +246,18 @@ export default function ProductDetailScreen() {
         {/* Price with feminine styling */}
         <ThemedText style={styles.price}>
           {typeof product.price === 'number'
-            ? product.price.toLocaleString('vi-VN', {
+            ? product.price.toLocaleString('en-US', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-              }) + ' đ'
-            : product.price + ' đ'}
+              }).replace(/,/g, '.') + ' đ'
+            : product.price.toString().replace(/,/g, '.') + ' đ'}
         </ThemedText>
+        
+        {/* Availability indicator */}
+        <View style={styles.availabilityContainer}>
+          <View style={styles.availabilityDot} />
+          <ThemedText style={styles.availabilityText}>Còn hàng</ThemedText>
+        </View>
 
         {/* Description section */}
         <ThemedView style={styles.section}>
@@ -423,7 +429,7 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fdf6f6', // Very light pink background
+    backgroundColor: '#fff0f5', // Light pink background
   },
   centerContainer: {
     flex: 1,
@@ -457,7 +463,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#f9c4ca', // Very light pink color
+    color: '#000000', // Black color
     textAlign: 'center',
     marginBottom: 10,
     fontFamily: 'System',
@@ -476,15 +482,15 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
-    color: '#f9c4ca', // Very light pink color
+    color: '#000000', // Black color
     fontWeight: '600',
   },
    price: {
      fontSize: 28,
      fontWeight: 'bold',
-     color: '#f9c4ca', // Very light pink color
+     color: '#000000', // Black color
      textAlign: 'left',
-     marginBottom: 15,
+     marginBottom: 5,
      fontFamily: 'System',
    },
   section: {
@@ -498,24 +504,24 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#f9c4ca',
+    color: '#000000', // Black color
     marginLeft: 10,
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#666',
-    backgroundColor: '#fdf6f6',
+    color: '#000000', // Black color
+    backgroundColor: '#fff0f5', // Light pink background
     padding: 15,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f9d4d8',
+    borderColor: '#ffb6c1', // Light pink border
   },
   detailsContainer: {
-    backgroundColor: '#fdf6f6',
+    backgroundColor: '#fff0f5', // Light pink background
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f9d4d8',
+    borderColor: '#ffb6c1', // Light pink border
     overflow: 'hidden',
   },
   detailRow: {
@@ -539,18 +545,18 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#f9c4ca',
+    color: '#000000', // Black color
     marginBottom: 4,
   },
   detailValue: {
     fontSize: 16,
-    color: '#555',
+    color: '#000000', // Black color
  },
   reviewsContainer: {
-    backgroundColor: '#fdf6f6',
+    backgroundColor: '#fff0f5', // Light pink background
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f9d4d8',
+    borderColor: '#ffb6c1', // Light pink border
     padding: 15,
   },
   review: {
@@ -572,14 +578,14 @@ const styles = StyleSheet.create({
   },
   reviewUser: {
     fontWeight: '600',
-    color: '#f9c4ca',
+    color: '#000000', // Black color
   },
   starsContainer: {
     flexDirection: 'row',
  },
   reviewComment: {
     fontSize: 15,
-    color: '#666',
+    color: '#000000', // Black color
     lineHeight: 18,
     marginTop: 5,
   },
@@ -614,11 +620,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   reviewFormContainer: {
-    backgroundColor: '#fdf2f3',
+    backgroundColor: '#fff0f5', // Light pink background
     borderRadius: 12,
     padding: 15,
     borderWidth: 1,
-    borderColor: '#f9d4d8',
+    borderColor: '#ffb6c1', // Light pink border
     marginBottom: 15,
   },
   ratingContainer: {
@@ -628,7 +634,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#f9c4ca',
+    color: '#000000', // Black color
     marginBottom: 10,
   },
   reviewInputContainer: {
@@ -637,12 +643,12 @@ const styles = StyleSheet.create({
   reviewInputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#f9c4ca',
+    color: '#000000', // Black color
     marginBottom: 8,
   },
   reviewTextInput: {
     borderWidth: 1,
-    borderColor: '#f9d4d8',
+    borderColor: '#ffb6c1', // Light pink border
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
@@ -679,5 +685,23 @@ const styles = StyleSheet.create({
    shadowOpacity: 0.3,
    shadowRadius: 6,
    elevation: 8,
+},
+ availabilityContainer: {
+   flexDirection: 'row',
+   alignItems: 'center',
+   justifyContent: 'flex-start',
+   marginBottom: 15,
+ },
+ availabilityDot: {
+   width: 10,
+   height: 10,
+   borderRadius: 5,
+   backgroundColor: '#4CAF50', // Green color for available
+   marginRight: 8,
+ },
+ availabilityText: {
+   fontSize: 16,
+   color: '#000000', // Black color
+   fontWeight: '600',
  },
 });
