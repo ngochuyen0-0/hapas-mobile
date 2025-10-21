@@ -1,6 +1,5 @@
 import { StyleSheet, Pressable, Text, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
-import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface ButtonProps {
   title: string;
@@ -21,30 +20,29 @@ export function Button({
   variant = 'primary',
   style,
 }: ButtonProps) {
-  const backgroundColor = useThemeColor(
-    { light: '#000', dark: '#fff' },
-    'background',
-  );
-  const color = useThemeColor({ light: '#fff', dark: '#000' }, 'text');
-
-  const buttonStyle = [
+  const buttonStyle = StyleSheet.flatten([
     styles.button,
     { backgroundColor: getVariantColor(variant, 'background') },
     disabled && styles.disabled,
     style,
-  ];
+  ]);
 
-  const textStyle = [styles.text, { color: getVariantColor(variant, 'text') }];
+  const textStyle = StyleSheet.flatten([
+    styles.text,
+    { color: getVariantColor(variant, 'text') },
+  ]);
+
+  const content = loading ? (
+    <ActivityIndicator color={getVariantColor(variant, 'text')} />
+  ) : (
+    <Text style={textStyle}>{title}</Text>
+  );
 
   if (href) {
     return (
       <Link href={href} asChild>
         <Pressable style={buttonStyle} disabled={disabled || loading}>
-          {loading ? (
-            <ActivityIndicator color={getVariantColor(variant, 'text')} />
-          ) : (
-            <Text style={textStyle}>{title}</Text>
-          )}
+          {content}
         </Pressable>
       </Link>
     );
@@ -56,11 +54,7 @@ export function Button({
       onPress={onPress}
       disabled={disabled || loading}
     >
-      {loading ? (
-        <ActivityIndicator color={getVariantColor(variant, 'text')} />
-      ) : (
-        <Text style={textStyle}>{title}</Text>
-      )}
+      {content}
     </Pressable>
   );
 }

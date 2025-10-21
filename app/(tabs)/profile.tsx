@@ -15,6 +15,7 @@ import { getTabBarHeight } from '@/components/CustomTabBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from '@/context/FavoritesContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiClient } from '@/lib/apiClient';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -29,9 +30,7 @@ export default function ProfileScreen() {
     setCartCount(3);
   }, []);
 
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -45,10 +44,11 @@ export default function ProfileScreen() {
       // In a real app, you would get the token from secure storage
       // const token = await SecureStore.getItemAsync('userToken');
       // const userData = await apiClient.getProfile(token);
-      // const ordersData = await apiClient.getOrders(token);
-
+      
       // Load user data from storage, fallback to mock data
       const savedData = await AsyncStorage.getItem('user');
+      const token = await AsyncStorage.getItem('token');
+
       const userData = savedData
         ? JSON.parse(savedData)
         : {
@@ -59,30 +59,12 @@ export default function ProfileScreen() {
           };
 
       setUser(userData);
+      const a = await apiClient.getOrders(
+  token || "",
+  savedData ? JSON.parse(savedData).id : ""
+);
+setOrders(a);
 
-      setOrders([
-        { id: 'ORD-001', date: '2023-06-15', total: 129000, status: 'Đã Giao' },
-        { id: 'ORD-002', date: '2023-06-10', total: 89000, status: 'Đã Giao' },
-        {
-          id: 'ORD-003',
-          date: '2023-06-05',
-          total: 199000,
-          status: 'Đang Xử Lý',
-        },
-        {
-          id: 'ORD-004',
-          date: '2023-06-01',
-          total: 75000,
-          status: 'Chờ Xác Nhận',
-        },
-        {
-          id: 'ORD-005',
-          date: '2023-05-28',
-          total: 210000,
-          status: 'Đang Giao',
-        },
-        { id: 'ORD-006', date: '2023-05-20', total: 85000, status: 'Đã Hủy' },
-      ]);
     } catch (error) {
       console.error('Error fetching profile data:', error);
       Alert.alert('Lỗi', 'Không thể tải thông tin profile');
@@ -101,6 +83,10 @@ export default function ProfileScreen() {
     router.push('/(tabs)/profile/edit-profile');
   };
 
+    useEffect(() => {
+    fetchProfileData();
+  }, []);
+  
   const handleNavigateToFavorites = () => {
     router.push('/(tabs)/profile/favorites');
   };
@@ -236,13 +222,12 @@ export default function ProfileScreen() {
         <ThemedText type="subtitle" style={styles.sectionTitle}>
           Lịch Sử Đặt Hàng
         </ThemedText>
-
         <View style={styles.orderStatusTabs}>
           {renderOrderStatusTab('all', 'Tất Cả')}
-          {renderOrderStatusTab('chờ xác nhận', 'Chờ XN')}
-          {renderOrderStatusTab('đang xử lý', 'Đang XL')}
-          {renderOrderStatusTab('đang giao', 'Đang Giao')}
-          {renderOrderStatusTab('đã giao', 'Đã Giao')}
+          {renderOrderStatusTab('pending', 'Chờ XN')}
+          {renderOrderStatusTab('approved', 'Đang XL')}
+          {renderOrderStatusTab('rejected', 'Đang Giao')}
+          {renderOrderStatusTab('processing', 'Đã Giao')}
           {renderOrderStatusTab('đã hủy', 'Đã Hủy')}
         </View>
 

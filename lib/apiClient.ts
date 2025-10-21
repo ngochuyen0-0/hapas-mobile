@@ -228,9 +228,9 @@ export const apiClient = {
   },
 
   // Get user orders
-  async getOrders(token: string): Promise<Order[]> {
+  async getOrders(token: string,customerId:string): Promise<Order[]> {
     try {
-      const response = await fetch(`${BASE_URL}/api/customer/orders`, {
+      const response = await fetch(`${BASE_URL}/api/orders?customer_id=${customerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -248,6 +248,7 @@ export const apiClient = {
       throw error;
     }
   },
+
 
   // Create an order
   async createOrder(token: string, orderData: any) {
