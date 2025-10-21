@@ -221,7 +221,7 @@ setOrders(a);
               <ThemedText style={styles.userEmail}>{user.email}</ThemedText>
             </View>
             <Pressable style={styles.editButton} onPress={handleEditProfile}>
-              <Ionicons name="create" size={20} color="#fff" />
+              <Ionicons name="create" size={20} color="#c75a7a" />
             </Pressable>
           </ThemedView>
 
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: 10,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#FFB6C1',
     borderRadius: 20,
   },
   sectionTitle: {

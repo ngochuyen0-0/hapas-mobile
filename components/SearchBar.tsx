@@ -110,17 +110,17 @@ const styles = StyleSheet.create({
     color: '#CCCCCC',
   },
  searchButton: {
-    backgroundColor: '#4A90E2',
-    borderRadius: 22,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    margin: 5,
-  },
-  searchButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
+     backgroundColor: '#FFB6C1', // Changed to pink color like login text
+     borderRadius: 22,
+     paddingVertical: 10,
+     paddingHorizontal: 18,
+     margin: 5,
+   },
+   searchButtonText: {
+     color: '#FFFFFF', // Keep white text for contrast
+     fontWeight: '600',
+     fontSize: 14,
+   },
 });
 
 export default SearchBar;
