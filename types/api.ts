@@ -14,7 +14,7 @@ export interface Product {
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
-  reviews?: Review[];
+  reviews?: ProductReview[];
   is_favorite?: boolean;
 }
 
@@ -26,12 +26,21 @@ export interface Category {
   updated_at?: string;
 }
 
-export interface Review {
+export interface ProductReview {
   id: string;
-  user: string;
+  product_id: string;
+  customer_id: string;
   rating: number;
   comment: string;
-  created_at?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  product: {
+    id: string;
+    name: string;
+    image_urls: string;
+    image?: string;
+  };
 }
 
 export interface User {

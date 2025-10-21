@@ -5,6 +5,7 @@ import {
   FlatList,
   Pressable,
   Alert,
+  Image,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -14,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import { Order } from '@/types/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function OrderHistoryScreen() {
   const { status } = useLocalSearchParams();
@@ -34,7 +36,10 @@ export default function OrderHistoryScreen() {
 
       try {
         setLoading(true);
-        const ordersData = await apiClient.getOrders(token);
+        // Get user from storage to pass customer ID
+        const userData = await AsyncStorage.getItem('user');
+        const customerId = userData ? JSON.parse(userData).id : '';
+        const ordersData = await apiClient.getOrders(token, customerId);
         setOrders(ordersData);
       } catch (error) {
         console.error('Error loading orders:', error);
@@ -175,27 +180,55 @@ export default function OrderHistoryScreen() {
                       ]);
                     }}
                   >
-                    <ThemedView>
-                      <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
-                      <ThemedText style={styles.orderDate}>
-                        {new Date(item.order_date).toLocaleDateString('vi-VN')}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.orderRight}>
-                      <ThemedText>
-                        {item.total_amount.toLocaleString('vi-VN')}₫
-                      </ThemedText>
-                      <ThemedText
-                        style={[
-                          styles.orderStatus,
-                          {
-                            color: getStatusColor(item.status),
-                          },
-                        ]}
-                      >
-                        {getStatusText(item.status)}
-                      </ThemedText>
-                    </ThemedView>
+                    {/* Product image - showing first product image */}
+                    {item.items && item.items.length > 0 && item.items[0].product && (
+                      <Image
+                        source={{ uri: item.items[0].product?.image || (item.items[0].product?.image_urls ? item.items[0].product.image_urls.split(',')[0].trim() : 'https://placehold.co/60x60') }}
+                        style={styles.productImage}
+                        onError={(e: any) => console.log('Image error:', e.nativeEvent.error)}
+                      />
+                    )}
+                    <View style={styles.orderInfo}>
+                      <View style={styles.productDetails}>
+                        <ThemedText type="defaultSemiBold" style={styles.orderId}>{item.id}</ThemedText>
+                        <ThemedText style={styles.orderDate}>
+                          {new Date(item.order_date).toLocaleDateString('vi-VN')}
+                        </ThemedText>
+                        {/* Show first product name if available */}
+                        {item.items && item.items.length > 0 && item.items[0].product && (
+                          <ThemedText style={styles.productName} numberOfLines={1}>
+                            {item.items[0].product?.name}
+                          </ThemedText>
+                        )}
+                        {/* Show product price if available */}
+                        {item.items && item.items.length > 0 && item.items[0].product && (
+                          <ThemedText style={styles.productPrice}>
+                            {(item.items[0].price || item.items[0].product?.price)?.toLocaleString('vi-VN')}₫ x {item.items[0].quantity}
+                          </ThemedText>
+                        )}
+                        {/* Show number of additional products if order has multiple products */}
+                        {item.items && item.items.length > 1 && (
+                          <ThemedText style={styles.additionalProducts}>
+                            +{item.items.length - 1} sản phẩm khác
+                          </ThemedText>
+                        )}
+                      </View>
+                      <View style={styles.orderSummary}>
+                        <ThemedText style={styles.totalAmount}>
+                          {item.total_amount.toLocaleString('vi-VN')}₫
+                        </ThemedText>
+                        <ThemedText
+                          style={[
+                            styles.orderStatus,
+                            {
+                              color: getStatusColor(item.status),
+                            },
+                          ]}
+                        >
+                          {getStatusText(item.status)}
+                        </ThemedText>
+                      </View>
+                    </View>
                   </Pressable>
                 );
               }}
@@ -281,10 +314,28 @@ const styles = StyleSheet.create({
   },
   orderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  orderInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+ productName: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    flex: 1,
   },
   orderDate: {
     fontSize: 12,
@@ -299,6 +350,34 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
   },
+  productPrice: {
+    fontSize: 12,
+    color: '#e74c3c',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  additionalProducts: {
+    fontSize: 12,
+    color: '#7f8c8d',
+    marginTop: 2,
+  },
+  totalAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+  },
+  productDetails: {
+    flex: 1,
+  },
+  orderId: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2c3e50',
+  },
+  orderSummary: {
+    alignItems: 'flex-end',
+    marginLeft: 10,
+  },
   noOrdersText: {
     textAlign: 'center',
     color: '#666',
@@ -306,7 +385,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     textAlign: 'center',
-    color: '#666',
+    color: '#66',
     paddingVertical: 20,
     fontSize: 16,
   },

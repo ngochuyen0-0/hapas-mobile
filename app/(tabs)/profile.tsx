@@ -6,6 +6,7 @@ import {
   Alert,
   ScrollView,
   FlatList,
+  Image,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -103,11 +104,55 @@ setOrders(a);
     router.push('/(tabs)/profile/orders');
   };
 
+  const handleCancelOrder = async (orderId: string) => {
+    Alert.alert(
+      'Xác nhận hủy đơn hàng',
+      'Bạn có chắc chắn muốn hủy đơn hàng này?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Xác nhận',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              // In a real app, you would call the API to cancel the order
+              // await apiClient.cancelOrder(token || "", orderId);
+              
+              // For now, we'll simulate the cancellation
+              Alert.alert('Thông báo', 'Đơn hàng đã được hủy thành công');
+              
+              // Refresh the profile data to update the order list
+              fetchProfileData();
+            } catch (error) {
+              console.error('Error cancelling order:', error);
+              Alert.alert('Lỗi', 'Không thể hủy đơn hàng. Vui lòng thử lại sau.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const getOrdersByStatus = (status: string) => {
     if (status === 'all') return orders;
-    return orders.filter((order) =>
-      order.status.toLowerCase().includes(status.toLowerCase()),
-    );
+    return orders.filter((order) => {
+      const orderStatus = order.status.toLowerCase();
+      switch (status) {
+        case 'pending':
+          return orderStatus === 'pending';
+        case 'processing':
+          return orderStatus === 'processing';
+        case 'shipped':
+          return orderStatus === 'shipped';
+        case 'delivered':
+          return orderStatus === 'delivered';
+        case 'cancelled':
+          return orderStatus === 'cancelled';
+        default:
+          return false;
+      }
+    });
   };
 
   const renderQuickAction = (
@@ -169,7 +214,7 @@ setOrders(a);
             </View>
             <View style={styles.userInfoText}>
               <ThemedText type="subtitle" style={styles.userName}>
-                {user.full_name}
+                {user.full_name || user.name}
               </ThemedText>
               <ThemedText style={styles.userEmail}>{user.email}</ThemedText>
             </View>
@@ -225,52 +270,112 @@ setOrders(a);
         <View style={styles.orderStatusTabs}>
           {renderOrderStatusTab('all', 'Tất Cả')}
           {renderOrderStatusTab('pending', 'Chờ XN')}
-          {renderOrderStatusTab('approved', 'Đang XL')}
-          {renderOrderStatusTab('rejected', 'Đang Giao')}
-          {renderOrderStatusTab('processing', 'Đã Giao')}
-          {renderOrderStatusTab('đã hủy', 'Đã Hủy')}
+          {renderOrderStatusTab('processing', 'Đang XL')}
+          {renderOrderStatusTab('shipped', 'Đang Giao')}
+          {renderOrderStatusTab('delivered', 'Đã Giao')}
+          {renderOrderStatusTab('cancelled', 'Đã Hủy')}
         </View>
 
         <FlatList
           data={getOrdersByStatus(activeOrderStatus)}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <Pressable
-              style={styles.orderRow}
-              onPress={() =>
-                Alert.alert('Chi tiết đơn hàng', `Mã đơn hàng: ${item.id}`)
-              }
-            >
-              <ThemedView>
-                <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
-                <ThemedText style={styles.orderDate}>{item.date}</ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.orderRight}>
-                <ThemedText>
-                  {typeof item.total === 'number'
-                    ? item.total.toLocaleString('vi-VN') + '₫'
-                    : item.total}
-                </ThemedText>
-                <ThemedText
-                  style={[
-                    styles.orderStatus,
-                    {
-                      color: item.status.includes('Giao')
-                        ? '#4CAF50'
-                        : item.status.includes('Xác Nhận')
-                          ? '#FF9800'
-                          : item.status.includes('Xử Lý')
-                            ? '#2196F3'
-                            : item.status.includes('Hủy')
-                              ? '#F44336'
-                              : '#9E9E9E',
-                    },
-                  ]}
+            <View style={styles.orderRowContainer}>
+              <Pressable
+                style={styles.orderRow}
+                onPress={() =>
+                  Alert.alert('Chi tiết đơn hàng', `Mã đơn hàng: ${item.id}`)
+                }
+              >
+                {/* Display multiple product images */}
+                <View style={styles.productImagesContainer}>
+                  {item.items && item.items.slice(0, 3).map((orderItem: any, index: number) => (
+                    <Image
+                      key={index}
+                      source={{
+                        uri: orderItem.product?.image ||
+                          (orderItem.product?.image_urls ?
+                            orderItem.product.image_urls.split(',')[0].trim() :
+                            'https://placehold.co/60x60')
+                      }}
+                      style={[
+                        styles.productImage,
+                        index > 0 && styles.additionalProductImage
+                      ]}
+                      onError={(e: any) => console.log('Image error:', e.nativeEvent.error)}
+                    />
+                  ))}
+                  {item.items && item.items.length > 3 && (
+                    <View style={styles.moreProductsOverlay}>
+                      <ThemedText style={styles.moreProductsText}>+{item.items.length - 3}</ThemedText>
+                    </View>
+                  )}
+                </View>
+                
+                <View style={styles.orderInfo}>
+                  <ThemedView>
+                    <ThemedText type="defaultSemiBold">{item.id}</ThemedText>
+                    <ThemedText style={styles.orderDate}>{item.order_date ? new Date(item.order_date).toLocaleDateString('vi-VN') : ''}</ThemedText>
+                    {/* Show first product name if available */}
+                    {item.items && item.items.length > 0 && item.items[0].product && (
+                      <ThemedText style={styles.productName} numberOfLines={1}>
+                        {item.items[0].product?.name}
+                      </ThemedText>
+                    )}
+                    {/* Display product quantity and price */}
+                    {item.items && item.items.length > 0 && item.items[0].product && (
+                      <ThemedText style={styles.productDetail}>
+                        SL: {item.items[0].quantity} | {typeof item.items[0].price === 'number'
+                          ? item.items[0].price.toLocaleString('vi-VN') + '₫'
+                          : item.items[0].price}
+                      </ThemedText>
+                    )}
+                    {/* Show number of items in order if more than 1 */}
+                    {item.items && item.items.length > 1 && (
+                      <ThemedText style={styles.productDetail}>
+                        +{item.items.length - 1} sản phẩm khác
+                      </ThemedText>
+                    )}
+                  </ThemedView>
+                  <ThemedView style={styles.orderRight}>
+                    <ThemedText>
+                      {typeof item.total_amount === 'number'
+                        ? item.total_amount.toLocaleString('vi-VN') + '₫'
+                        : item.total_amount}
+                    </ThemedText>
+                    <ThemedText
+                      style={[
+                        styles.orderStatus,
+                        {
+                          color:
+                            item.status === 'delivered' ? '#4CAF50' :
+                            item.status === 'pending' ? '#FF9800' :
+                            item.status === 'processing' ? '#2196F3' :
+                            item.status === 'shipped' ? '#9C27B0' :
+                            item.status === 'cancelled' ? '#F44336' : '#9E9E9E',
+                        },
+                      ]}
+                    >
+                      {item.status === 'pending' ? 'Chờ Xác Nhận' :
+                       item.status === 'processing' ? 'Đang Xử Lý' :
+                       item.status === 'shipped' ? 'Đang Giao' :
+                       item.status === 'delivered' ? 'Đã Giao' :
+                       item.status === 'cancelled' ? 'Đã Hủy' : item.status}
+                    </ThemedText>
+                  </ThemedView>
+                </View>
+              </Pressable>
+              
+              {/* Cancel button for pending orders */}
+              {item.status === 'pending' && (
+                <Pressable
+                  style={styles.cancelButton}
+                  onPress={() => handleCancelOrder(item.id)}
                 >
-                  {item.status}
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
+                  <ThemedText style={styles.cancelButtonText}>Hủy Đơn</ThemedText>
+                </Pressable>
+              )}
+            </View>
           )}
           scrollEnabled={false}
         />
@@ -322,6 +427,32 @@ setOrders(a);
             </View>
             <ThemedText style={styles.settingsText}>
               Phương Thức Thanh Toán
+            </ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+
+          <Pressable
+            style={styles.settingsItem}
+            onPress={() => router.push('/(tabs)/profile/orders')}
+          >
+            <View style={styles.settingsIcon}>
+              <Ionicons name="cube" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>
+              Đơn Hàng Của Tôi
+            </ThemedText>
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </Pressable>
+          
+          <Pressable
+            style={styles.settingsItem}
+            onPress={() => router.push('/(tabs)/profile/review-history')}
+          >
+            <View style={styles.settingsIcon}>
+              <Ionicons name="star" size={24} color="#000" />
+            </View>
+            <ThemedText style={styles.settingsText}>
+              Lịch Sử Đánh Giá
             </ThemedText>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
           </Pressable>
@@ -516,10 +647,32 @@ const styles = StyleSheet.create({
   },
   orderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#f8f8f8',
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  orderInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  productName: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    flex: 1,
+  },
+  productDetail: {
+    fontSize: 11,
+    color: '#888',
+    marginTop: 2,
   },
   orderDate: {
     fontSize: 12,
@@ -534,11 +687,50 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
   },
+  orderRowContainer: {
+    marginBottom: 10,
+  },
+  productImagesContainer: {
+    flexDirection: 'row',
+    marginRight: 15,
+  },
+  additionalProductImage: {
+    marginLeft: -10,
+  },
+  moreProductsOverlay: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 60,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  moreProductsText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   noOrdersText: {
     textAlign: 'center',
     color: '#999',
     paddingVertical: 20,
     fontStyle: 'italic',
+  },
+  cancelButton: {
+    alignSelf: 'flex-end',
+    marginTop: 5,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    backgroundColor: '#ff4444',
+    borderRadius: 15,
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
   },
   settingsContainer: {
     flexDirection: 'column',

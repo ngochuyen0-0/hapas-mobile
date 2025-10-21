@@ -274,4 +274,35 @@ export const apiClient = {
       throw error;
     }
   },
+
+  // Get customer reviews
+  async getCustomerReviews(token: string): Promise<any[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/api/reviews/customer`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch reviews');
+      }
+
+      // Process the reviews to extract image from image_urls
+      const reviews = (data.data || []).map((review: any) => ({
+        ...review,
+        product: {
+          ...review.product,
+          image: review.product.image || (review.product.image_urls ? review.product.image_urls.split(',')[0].trim() : undefined),
+        },
+      }));
+
+      return reviews;
+    } catch (error) {
+      console.error('Error fetching customer reviews:', error);
+      throw error;
+    }
+  },
 };

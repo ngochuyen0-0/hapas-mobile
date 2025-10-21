@@ -80,14 +80,19 @@ export default function HomeScreen() {
       setCategories([]);
     } finally {
       setLoading(false);
-      setFilteredProducts(products); // Initialize filtered products with all products
+      // Initialize filtered products with only 14 products for the home screen
+      setFilteredProducts(products.slice(0, 14));
     }
   };
 
   // Update the initial filtered products when products are loaded
   useEffect(() => {
-    setFilteredProducts(products);
-  }, [products]);
+    // Only update filtered products when products change and there's no search query
+    if (!searchQuery) {
+      // Limit to 14 products on the home screen when not searching
+      setFilteredProducts(products.slice(0, 14));
+    }
+  }, [products]); // Only depend on products, not searchQuery to avoid conflicts with search handling
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -101,7 +106,8 @@ export default function HomeScreen() {
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
-      setFilteredProducts(products);
+      // When search is cleared, show only 14 products again
+      setFilteredProducts(products.slice(0, 14));
     } else {
       setIsSearching(true);
       try {
