@@ -228,7 +228,7 @@ export const apiClient = {
   },
 
   // Get user orders
-  async getOrders(token: string,customerId:string): Promise<Order[]> {
+  async getOrders(token: string, customerId: string): Promise<Order[]> {
     try {
       const response = await fetch(`${BASE_URL}/api/orders?customer_id=${customerId}`, {
         headers: {

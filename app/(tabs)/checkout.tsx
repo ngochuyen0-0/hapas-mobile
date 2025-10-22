@@ -150,7 +150,6 @@ export default function CheckoutScreen() {
 
     try {
       setLoading(true);
-
       // Prepare order data with correct structure
       const orderData = {
         items: cartState.items.map((item) => ({
@@ -486,7 +485,7 @@ export default function CheckoutScreen() {
                 style={[
                   styles.paymentSelectionIndicator,
                   paymentMethod === 'cod' &&
-                    styles.paymentSelectionIndicatorSelected,
+                  styles.paymentSelectionIndicatorSelected,
                 ]}
               >
                 {paymentMethod === 'cod' && (
@@ -512,7 +511,7 @@ export default function CheckoutScreen() {
                 style={[
                   styles.paymentSelectionIndicator,
                   paymentMethod === 'bank' &&
-                    styles.paymentSelectionIndicatorSelected,
+                  styles.paymentSelectionIndicatorSelected,
                 ]}
               >
                 {paymentMethod === 'bank' && (
